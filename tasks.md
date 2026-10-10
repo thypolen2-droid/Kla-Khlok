@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-030 DONE` — server-authoritative roll reveal complete; next job is `JOB-031`.
+**Current status:** `JOB-UI-001 DONE` — tabletop visual UI pass complete; next job is `JOB-031`.
 
 ## One-job-at-a-time system
 
@@ -392,6 +392,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Five server tests pass; live HTTP confirmed `outcome: null` during `ROLLING`, rejected an early reveal, and returned one deadline-qualified `RESULTS` outcome (`s3,s2,s1`) after the reveal deadline.
 - Remaining limitation: The server currently exposes HTTP polling commands rather than a persistent multi-client stream; intensity packets and reconnect sequencing are later jobs.
 - Rollback note: Revert this job's commit to remove server-side outcome sampling and reveal timing while preserving roster lock validation.
+
+### JOB-UI-001 — Tabletop visual UI pass
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck --workspace @kla-khlok/web`; `npm run build --workspace @kla-khlok/web`; browser visual inspection at `/play`
+- Result: `PASS`
+- Evidence: Reworked the live play screen into a wider responsive tabletop layout with clearer score/result hierarchy, stronger panel grouping, compact mapping labels, larger scene framing, tactile controls, and mobile-safe seat/pack grids; browser screenshot and accessibility tree confirm the route remains usable.
+- Remaining limitation: Game art and uploaded symbol illustrations are still placeholders until the image-pack workflow supplies real content.
+- Rollback note: Revert this job's commit to restore the previous stylesheet while preserving all gameplay behavior.
 
 ## Delivery order
 
