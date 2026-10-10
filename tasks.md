@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-008 DONE` — foundation documentation complete; next job is `JOB-009`.
+**Current status:** `JOB-009 DONE` — basic web shell and routes complete; next job is `JOB-010`.
 
 ## One-job-at-a-time system
 
@@ -44,7 +44,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 6 | JOB-006 | Pure round state machine | JOB-004, JOB-005 | DONE — fake-clock reducer completes a valid round, enforces the 2,000 ms tail, retains the original outcome, and rejects invalid commands. |
 | 7 | JOB-007 | Cryptographic outcome sampler | JOB-006 | DONE — browser-byte and server-index adapters return valid outcomes and pass rejection/range tests. |
 | 8 | JOB-008 | Foundation documentation | JOB-002 | DONE — documentation links and `npm run docs:check` pass. |
-| 9 | JOB-009 | Basic web shell and route | JOB-002 | Browser smoke test loads the app shell without console errors. |
+| 9 | JOB-009 | Basic web shell and route | JOB-002 | DONE — browser smoke test verified `/` and `/play` render the shell and navigation. |
 | 10 | JOB-010 | Bowl and lid scene | JOB-009 | Browser visual smoke test shows a bowl, lid, and camera at the intended desktop and mobile aspect ratios. |
 | 11 | JOB-011 | Three textured cube bodies | JOB-010 | Browser test confirms exactly three visible cube bodies and six material slots per cube. |
 | 12 | JOB-012 | Face orientation mapping | JOB-011 | Mapping test verifies all 18 face/normal combinations and a debug view displays the selected top face. |
@@ -171,6 +171,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Documentation check passed for README, GDD, root task tracker, delivery plan, and documentation task link; README lists the verified scaffold commands and current next job.
 - Remaining limitation: Feature-specific architecture, protocol, QA, asset, and changelog documents will be added as their implementation jobs require them.
 - Rollback note: Revert this job's commit to remove the new `docs/` files and documentation check without changing gameplay code.
+
+### JOB-009 — Basic web shell and route
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server and inspect `/` and `/play` in a browser
+- Result: `PASS`
+- Evidence: Type-check and Vite production build passed; browser smoke test rendered the `Kla Khlok` heading, navigation, foundation status, and route-specific text at both `http://127.0.0.1:5173/` and `/play`.
+- Remaining limitation: The play route is a foundation placeholder; bowl, lid, dice, and gameplay controls begin in JOB-010 and later jobs.
+- Rollback note: Revert this job's commit to remove route-aware shell changes while preserving the scaffold and shared foundation.
 ```
 
 ## Delivery order
