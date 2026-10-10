@@ -20,3 +20,16 @@ export {
   getMatchWinnerIds,
   getRoundWinnerIds,
 } from "./scoring.js";
+export {
+  SETTLE_DURATION_MS,
+  RoundCommandError,
+  createInitialRoundState,
+  reduceRound,
+} from "./round.js";
+export type {
+  RoundCommand,
+  RoundDependencies,
+  RoundPlayer,
+  RoundResult,
+  RoundState,
+} from "./round.js";
