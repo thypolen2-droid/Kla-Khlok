@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-015 DONE` — tap, pointer-hold, and keyboard controls complete; next job is `JOB-016`.
+**Current status:** `JOB-016 DONE` — DeviceMotion adapter and fallback status complete; next job is `JOB-017`.
 
 ## One-job-at-a-time system
 
@@ -51,7 +51,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 13 | JOB-013 | Visual physics containment | JOB-011 | DONE — Rapier scene loads and browser inspection shows all three settled dice inside the bowl bounds. |
 | 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | DONE — browser and fake-clock tests prove the shared lifecycle, fixed tail, retained outcome, and one result. |
 | 15 | JOB-015 | Button and pointer controls | JOB-014 | DONE — browser verifies tap, pointer press/release, and Space controls share one lifecycle. |
-| 16 | JOB-016 | DeviceMotion adapter | JOB-015 | Sensor fixture test maps quiet/gentle/fast samples to bounded intensity; unavailable permission uses the fallback control. |
+| 16 | JOB-016 | DeviceMotion adapter | JOB-015 | DONE — sensor fixtures pass and browser exposes explicit motion enablement with fallback status. |
 | 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | Browser test confirms mute stops sound, repeated rounds do not stack loops, and unsupported vibration does not fail the round. |
 | 18 | JOB-018 | Controlled reveal and 2D fallback | JOB-012, JOB-014 | Browser test confirms the revealed top faces match the retained outcome with WebGL enabled and disabled. |
 | 19 | JOB-019 | Six-slot pack editor | JOB-018 | Browser test opens the editor, edits all six slots, and shows complete square previews without stretching. |
@@ -242,6 +242,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Browser exposed `Tap to Start` and `Hold to Shake`; Space transitioned the round through `SHAKING` to `SETTLING`; pointer press/release also entered `SETTLING`; the existing Stop button remains available and all paths use the same reducer.
 - Remaining limitation: Motion sensor input is not connected yet; DeviceMotion filtering and capability fallback are JOB-016.
 - Rollback note: Revert this job's commit to remove the browser control adapters while preserving the authoritative reducer and scene.
+
+### JOB-016 — DeviceMotion adapter
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`; `npm run build --workspace @kla-khlok/web`; browser enable-motion/fallback check
+- Result: `PASS`
+- Evidence: Motion fixtures cover quiet/gentle/strong direct acceleration, bounded intensity, 300 ms stop confirmation, gravity-inclusive initialization, and invalid axes; all 13 shared tests pass; browser requires an explicit `Enable Motion` gesture and reports `Motion ready` while button controls remain visible.
+- Remaining limitation: Real iPhone/Android permission, sensor, and HTTPS behavior still require device validation in JOB-040.
+- Rollback note: Revert this job's commit to remove the motion processor and browser permission/listener adapter while preserving button controls.
 
 ## Delivery order
 

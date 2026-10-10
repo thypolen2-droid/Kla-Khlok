@@ -47,3 +47,5 @@ export {
   getSymbolForFaceIndex,
 } from "./faces.js";
 export type { DieFaceDirection } from "./faces.js";
+export { MotionProcessor } from "./motion.js";
+export type { MotionProcessorOptions, MotionResult, MotionSample, MotionVector } from "./motion.js";

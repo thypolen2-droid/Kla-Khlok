@@ -4,6 +4,7 @@ import {
   DIE_FACE_SYMBOLS,
   GAME_NAME,
   GAME_VERSION,
+  MotionProcessor,
   createBrowserCryptoSampler,
   createInitialRoundState,
   reduceRound,
@@ -16,6 +17,10 @@ export function App() {
   const isPlayRoute = path === "/play";
   const sampler = useMemo(() => createBrowserCryptoSampler(), []);
   const dependencies = useMemo(() => ({ sampleOutcome: sampler }), [sampler]);
+  const motionProcessor = useMemo(() => new MotionProcessor(), []);
+  const [motionEnabled, setMotionEnabled] = useState(false);
+  const [motionStatus, setMotionStatus] = useState("Motion not enabled");
+  const [motionIntensity, setMotionIntensity] = useState(0);
   const [round, setRound] = useState<RoundState>(() => {
     let initial = createInitialRoundState(["local"]);
     initial = reduceRound(initial, { type: "START_MATCH" }, dependencies);
@@ -30,6 +35,24 @@ export function App() {
     }, 50);
     return () => window.clearInterval(timer);
   }, [dependencies, round.phase]);
+
+  useEffect(() => {
+    if (!motionEnabled) return;
+    const onMotion = (event: DeviceMotionEvent) => {
+      const result = motionProcessor.push({
+        timestamp: Number.isFinite(event.timeStamp) ? event.timeStamp : performance.now(),
+        acceleration: event.acceleration
+          ? { x: event.acceleration.x, y: event.acceleration.y, z: event.acceleration.z }
+          : null,
+        accelerationIncludingGravity: event.accelerationIncludingGravity
+          ? { x: event.accelerationIncludingGravity.x, y: event.accelerationIncludingGravity.y, z: event.accelerationIncludingGravity.z }
+          : null,
+      });
+      if (result.valid) setMotionIntensity(result.intensity);
+    };
+    window.addEventListener("devicemotion", onMotion);
+    return () => window.removeEventListener("devicemotion", onMotion);
+  }, [motionEnabled, motionProcessor]);
 
   const lidOpen = round.phase === "SELECTING" || round.phase === "RESULTS";
   const startRoll = () => {
@@ -46,6 +69,30 @@ export function App() {
       : current
   ));
   const nextRound = () => setRound((current) => reduceRound(current, { type: "NEXT" }, dependencies));
+
+  const enableMotion = async () => {
+    if (!("DeviceMotionEvent" in window)) {
+      setMotionStatus("Motion unavailable — use button controls");
+      return;
+    }
+    const deviceMotion = DeviceMotionEvent as typeof DeviceMotionEvent & {
+      requestPermission?: () => Promise<"granted" | "denied">;
+    };
+    if (deviceMotion.requestPermission) {
+      try {
+        const permission = await deviceMotion.requestPermission();
+        if (permission !== "granted") {
+          setMotionStatus("Motion denied — button controls remain available");
+          return;
+        }
+      } catch {
+        setMotionStatus("Motion permission failed — button controls remain available");
+        return;
+      }
+    }
+    setMotionEnabled(true);
+    setMotionStatus("Motion ready");
+  };
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -81,7 +128,7 @@ export function App() {
         <p className="description">
           {isPlayRoute ? "One local demo seat is ready to test the authoritative roll lifecycle." : "The game foundation is ready for the shared rules and playable dice jobs."}
         </p>
-        <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber}</p>
+        <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber} · Motion {Math.round(motionIntensity * 100)}%</p>
         <DiceTableScene lidOpen={lidOpen} shaking={round.phase === "SHAKING"} />
         <ul className="face-map" aria-label="Die face mapping debug view">
           {DIE_FACE_DIRECTIONS.map((direction, index) => (
@@ -90,6 +137,8 @@ export function App() {
         </ul>
         {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Tap to Start</button>}
         {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
+        {!motionEnabled && <button type="button" onClick={enableMotion}>Enable Motion</button>}
+        <p className="motion-status" aria-live="polite">{motionStatus}</p>
         {round.phase !== "RESULTS" && round.phase !== "MATCH_FINISHED" && (
           <button
             className="hold-control"
