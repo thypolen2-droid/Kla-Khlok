@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-029 DONE` — online roster readiness and host lock complete; next job is `JOB-030`.
+**Current status:** `JOB-030 DONE` — server-authoritative roll reveal complete; next job is `JOB-031`.
 
 ## One-job-at-a-time system
 
@@ -382,6 +382,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Four server tests pass; live HTTP commands advanced a two-player room through both selections, both ready states, and a host-authorized lock at version 6; non-host lock, incomplete readiness, stale versions, and post-lock selection are rejected.
 - Remaining limitation: The locked room does not yet sample or broadcast an authoritative dice outcome; that is JOB-030.
 - Rollback note: Revert this job's commit to remove roster command validation and host lock while preserving room snapshots and deduplication.
+
+### JOB-030 — Server-authoritative outcomes
+
+- Status: `DONE`
+- Commit: `7001acd`
+- Functional test: server type-check/build/test; live HTTP select/ready/lock/roll/reveal flow
+- Result: `PASS`
+- Evidence: Five server tests pass; live HTTP confirmed `outcome: null` during `ROLLING`, rejected an early reveal, and returned one deadline-qualified `RESULTS` outcome (`s3,s2,s1`) after the reveal deadline.
+- Remaining limitation: The server currently exposes HTTP polling commands rather than a persistent multi-client stream; intensity packets and reconnect sequencing are later jobs.
+- Rollback note: Revert this job's commit to remove server-side outcome sampling and reveal timing while preserving roster lock validation.
 
 ## Delivery order
 
