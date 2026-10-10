@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-026 DONE` — local locked-round recovery complete; next job is `JOB-027`.
+**Current status:** `JOB-027 DONE` — room create/join and capacity complete; next job is `JOB-028`.
 
 ## One-job-at-a-time system
 
@@ -352,6 +352,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Reload restored `SETTLING` with the “reveal is locked to the original outcome” message; the fixed deadline then produced one `RESULTS` history entry with the retained outcome and zero score in dice-only mode.
 - Remaining limitation: This snapshot is session-local and does not yet cover online room credentials, server authority, or cross-device recovery.
 - Rollback note: Revert this job's commit to remove session snapshot persistence and restore fresh-start behavior after reload.
+
+### JOB-027 — Room create/join and capacity
+
+- Status: `DONE`
+- Commit: `74dd783`
+- Functional test: server type-check; server build/test; HTTP create/join smoke test against a live server
+- Result: `PASS`
+- Evidence: Room creation plus seven joins produced an 8-player snapshot; the ninth join returned HTTP `409`; invalid rejoin credentials returned HTTP `403`; room snapshots omit private rejoin tokens; server unit fixtures pass.
+- Remaining limitation: The room manager is in-memory and has no online snapshot sequencing, command deduplication, or multi-process storage yet.
+- Rollback note: Revert this job's commit to remove the room HTTP endpoints and in-memory capacity manager while preserving the local game and health endpoint.
 
 ## Delivery order
 
