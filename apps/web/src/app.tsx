@@ -97,7 +97,7 @@ export function App() {
   ));
   const nextRound = () => setRound((current) => reduceRound(current, { type: "NEXT" }, dependencies));
   const resetSeats = (playerIds: readonly string[]) => {
-    let next = createInitialRoundState(playerIds);
+    let next = createInitialRoundState(playerIds, playerIds[0], round.scoringEnabled);
     next = reduceRound(next, { type: "START_MATCH" }, dependencies);
     setRound(next);
   };
@@ -123,6 +123,16 @@ export function App() {
       try { return reduceRound(current, { type: "READY", playerId }, dependencies); }
       catch { return current; }
     });
+  };
+  const toggleDiceOnly = () => {
+    if (round.phase !== "SELECTING") return;
+    setRound((current) => ({ ...current, scoringEnabled: !current.scoringEnabled }));
+  };
+  const newMatch = () => {
+    let next = createInitialRoundState(round.players.map((player) => player.playerId), round.hostPlayerId, round.scoringEnabled);
+    next = reduceRound(next, { type: "START_MATCH" }, dependencies);
+    setRound(next);
+    setSeatMessage("New match started. Seats and pack were preserved; pick and confirm again.");
   };
   const symbolBoard = (
     <div className="symbol-board" aria-label="Six symbol board">
@@ -202,6 +212,7 @@ export function App() {
           </div>
           {round.latestResult && <p className="storage-status">{round.latestResult.winnerIds.length > 0 ? `Round winners: ${round.latestResult.winnerIds.join(", ")}` : "No-match round — no player scored."}</p>}
           {round.history.length > 0 && <ol className="history-list" aria-label="Round history">{round.history.slice().reverse().map((result) => <li key={result.roundId}>Round {result.roundNumber}: {result.outcome.join(" · ")} · {result.winnerIds.length ? result.winnerIds.join(", ") : "no match"}</li>)}</ol>}
+          {round.phase === "SELECTING" && <button type="button" onClick={toggleDiceOnly}>{round.scoringEnabled ? "Enable dice-only mode" : "Disable dice-only mode"}</button>}
         </section>
         <DiceTableScene imageUrls={imageUrls} lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
         <section className="seat-panel" aria-labelledby="seat-panel-title">
@@ -259,8 +270,10 @@ export function App() {
           <>
             <p className="result-status" aria-live="polite">Result: {round.latestResult?.outcome.join(" · ")} · Points: {round.latestResult?.pointsDelta.local ?? 0}</p>
             <button type="button" onClick={nextRound}>Next Round</button>
+            <button type="button" onClick={newMatch}>New Match</button>
           </>
         )}
+        {round.phase === "MATCH_FINISHED" && <button type="button" onClick={newMatch}>New Match</button>}
       </section>
     </main>
   );

@@ -23,6 +23,7 @@ export interface RoundResult {
 }
 
 export interface RoundState {
+  readonly scoringEnabled: boolean;
   readonly phase: RoundPhase;
   readonly hostPlayerId: string;
   readonly roundNumber: number;
@@ -58,12 +59,14 @@ export class RoundCommandError extends Error {
 export function createInitialRoundState(
   playerIds: readonly string[],
   hostPlayerId = playerIds[0],
+  scoringEnabled = true,
 ): RoundState {
   if (!hostPlayerId || playerIds.length === 0 || !playerIds.includes(hostPlayerId)) {
     throw new RoundCommandError("A room needs at least one player and a valid host");
   }
 
   return {
+    scoringEnabled,
     phase: "LOBBY",
     hostPlayerId,
     roundNumber: 0,
@@ -201,7 +204,7 @@ export function reduceRound(
             const selection = selections[player.playerId];
             return [
               player.playerId,
-              selection ? calculateRoundPoints(selection, state.outcome!) : 0,
+              state.scoringEnabled && selection ? calculateRoundPoints(selection, state.outcome!) : 0,
             ];
           }),
         );

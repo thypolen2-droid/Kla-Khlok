@@ -84,3 +84,17 @@ test("ten-round deterministic match retains history, ties, and no-match rounds",
   assert.equal(state.history[7].winnerIds.length, 0);
   assert.deepEqual(state.history[0].winnerIds, ["alice", "bob"]);
 });
+
+test("dice-only mode resolves outcomes without awarding points", () => {
+  let state = createInitialRoundState(["alice"], "alice", false);
+  state = reduceRound(state, { type: "START_MATCH" }, deps);
+  state = reduceRound(state, { type: "SET_SELECTION", playerId: "alice", selection: "s1" }, deps);
+  state = reduceRound(state, { type: "READY", playerId: "alice" }, deps);
+  state = reduceRound(state, { type: "ARM", actorId: "alice" }, deps);
+  state = reduceRound(state, { type: "SHAKE_START", actorId: "alice" }, deps);
+  state = reduceRound(state, { type: "STOP", actorId: "alice", now: 10_000 }, deps);
+  state = reduceRound(state, { type: "TICK", now: 12_000 }, deps);
+  state = reduceRound(state, { type: "TICK", now: 12_001 }, deps);
+  assert.equal(state.latestResult.pointsDelta.alice, 0);
+  assert.equal(state.players[0].score, 0);
+});
