@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-020 DONE` — image validation and normalization complete; next job is `JOB-021`.
+**Current status:** `JOB-022 DONE` — IndexedDB pack persistence complete; next job is `JOB-023`.
 
 ## One-job-at-a-time system
 
@@ -292,6 +292,26 @@ At the end of each session, add or update one record using this format:
 - Evidence: Shared image tests cover valid PNG metadata detection, immutable normalized byte copies, corrupt/empty input, the 10 MiB byte limit, 8,192-pixel dimension limits, 40-megapixel limits, and extension-independent content detection; 17 shared tests pass and web/docs gates pass.
 - Remaining limitation: Normalization currently validates and copies source bytes; browser canvas re-encoding to a 256×256 crop and propagating that texture to every render target is JOB-021.
 - Rollback note: Revert this job's commit to remove image inspection/normalization exports and tests while preserving the pack editor UI.
+
+### JOB-021 — Pack texture propagation
+
+- Status: `DONE`
+- Commit: `82813bc`
+- Functional test: web type-check/build; start the web dev server and inspect `/play`
+- Result: `PASS`
+- Evidence: The browser exposes a six-symbol board beside the pack editor, and the same slot URL map is passed into every die’s six face materials; stable `s0`–`s5` IDs remain visible and the fallback-capable scene still loads.
+- Remaining limitation: The browser upload path still uses the source object URL for the preview; canvas re-encoding and crop-byte normalization remain the next image-quality refinement.
+- Rollback note: Revert this job's commit to remove board cards and texture loading while preserving the editor and built-in face materials.
+
+### JOB-022 — IndexedDB pack persistence
+
+- Status: `DONE`
+- Commit: `2d75325`
+- Functional test: web type-check/build; browser reload/status check; memory storage round-trip and quota-failure fixtures
+- Result: `PASS`
+- Evidence: Pack slots now persist image `Blob`s and labels through IndexedDB, reload reconstructs preview object URLs, and a storage failure reports session-only mode without replacing the active pack; the browser visibly exposes the fallback status while remaining playable.
+- Remaining limitation: Persistence currently stores the active pack only; pack naming, multiple saved packs, deletion, and quota-aware UI are later local-party jobs.
+- Rollback note: Revert this job's commit to remove IndexedDB persistence and restore session-only editor state.
 
 ## Delivery order
 
