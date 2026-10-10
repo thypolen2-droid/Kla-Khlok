@@ -55,6 +55,29 @@ function Lid({ open }: { readonly open: boolean }) {
   );
 }
 
+const dieFaceColors = ["#f3d6a0", "#d9793e", "#e8b451", "#b94e37", "#f1e5c8", "#8d3e2b"];
+
+function Die({ position, rotation }: { readonly position: [number, number, number]; readonly rotation: [number, number, number] }) {
+  return (
+    <mesh castShadow position={position} rotation={rotation}>
+      <boxGeometry args={[0.82, 0.82, 0.82]} />
+      {dieFaceColors.map((color, index) => (
+        <meshStandardMaterial key={index} attach={`material-${index}`} color={color} roughness={0.48} />
+      ))}
+    </mesh>
+  );
+}
+
+function Dice() {
+  return (
+    <group aria-label="Three dice">
+      <Die position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
+      <Die position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
+      <Die position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
+    </group>
+  );
+}
+
 function Table({ lidOpen }: DiceTableSceneProps) {
   return (
     <>
@@ -63,6 +86,7 @@ function Table({ lidOpen }: DiceTableSceneProps) {
       <directionalLight castShadow intensity={2.5} position={[4, 7, 5]} shadow-mapSize={[1024, 1024]} />
       <pointLight intensity={18} distance={12} color="#e49a58" position={[-4, 3, 2]} />
       <Bowl />
+      <Dice />
       <Lid open={lidOpen} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.42, 0]} receiveShadow>
         <planeGeometry args={[14, 14]} />
