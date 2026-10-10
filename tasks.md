@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `TODO` — planning baseline only; no application scaffold exists yet.
+**Current status:** `JOB-001 DONE` — audit complete; next job is `JOB-002`.
 
 ## One-job-at-a-time system
 
@@ -36,7 +36,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 
 | Order | Job ID | Single deliverable | Depends on | Functional test before `DONE` |
 | ---: | --- | --- | --- | --- |
-| 1 | JOB-001 | Repository and toolchain audit | GDD | Audit lists files, scripts, runtime versions, and applicable rules; no source changes are required. |
+| 1 | JOB-001 | Repository and toolchain audit | GDD | DONE — audit recorded below; repository contains only GDD/README/tasks, no app manifests or scripts. |
 | 2 | JOB-002 | Minimal monorepo scaffold | JOB-001 | Install, development, and build commands complete for the empty web/server/shared packages. |
 | 3 | JOB-003 | Shared symbol and phase types | JOB-002 | Type-check rejects an invalid symbol ID and accepts all six stable IDs and all documented phases. |
 | 4 | JOB-004 | Runtime payload schemas | JOB-003 | Schema tests reject malformed IDs, NaN, unknown phases, and incomplete packs. |
@@ -91,6 +91,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: <what was observed>
 - Remaining limitation: <none or specific gap>
 - Rollback note: <how to revert only this job>
+
+### JOB-001 — Repository and toolchain audit
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: repository audit command inspecting files, manifests, rules, toolchain versions, Git state, and the full GDD
+- Result: `PASS`
+- Evidence: 1,190-line GDD read successfully; repository contains `KLA_KHLOK_GDD.md`, `README.md`, and `tasks.md`; no `AGENTS.md`, package manifests, app source, or runnable scripts exist; available toolchain includes Git 2.55.0, Node v24.19.0, npm 12.0.2, pnpm 11.25.0, and npx 12.0.2; Godot and Yarn are not installed; branch is clean on `main` and tracks `origin/main`.
+- Remaining limitation: No application scaffold or install/build/test command exists yet.
+- Rollback note: Revert the commit that adds this audit record only; no application files were changed.
 ```
 
 ## Delivery order

@@ -44,7 +44,7 @@ tests/       # Rule, image, protocol, and browser tests
 
 ## Development commands
 
-No install, development, build, or test scripts exist yet because the application scaffold is not present. The first implementation task is `FND-02` in [`tasks.md`](tasks.md). Once the scaffold is added, this section must be updated with the exact commands that were actually run.
+No install, development, build, or test scripts exist yet because the application scaffold is not present. The next implementation job is `JOB-002` in [`tasks.md`](tasks.md). Once the scaffold is added, this section must be updated with the exact commands that were actually run.
 
 ## Design constraints
 
