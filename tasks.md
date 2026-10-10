@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-025 DONE` — dice-only mode and New Match reset complete; next job is `JOB-026`.
+**Current status:** `JOB-026 DONE` — local locked-round recovery complete; next job is `JOB-027`.
 
 ## One-job-at-a-time system
 
@@ -342,6 +342,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Dice-only mode reached `RESULTS` with `Points: 0`, a no-match history message, and no score award; New Match returned to `SELECTING`, round 1, `0/10` history, and retained the existing seat/pack setup.
 - Remaining limitation: Locked-round reload recovery is JOB-026; persistence of an in-progress round is not yet wired to the match snapshot.
 - Rollback note: Revert this job's commit to remove the scoring flag, dice-only control, and New Match reset while preserving normal scoring/history behavior.
+
+### JOB-026 — Local locked-round recovery
+
+- Status: `DONE`
+- Commit: `32308f9`
+- Functional test: web type-check/build; browser start/stop, immediate reload during `SETTLING`, inspect restored phase, wait for reveal
+- Result: `PASS`
+- Evidence: Reload restored `SETTLING` with the “reveal is locked to the original outcome” message; the fixed deadline then produced one `RESULTS` history entry with the retained outcome and zero score in dice-only mode.
+- Remaining limitation: This snapshot is session-local and does not yet cover online room credentials, server authority, or cross-device recovery.
+- Rollback note: Revert this job's commit to remove session snapshot persistence and restore fresh-start behavior after reload.
 
 ## Delivery order
 
