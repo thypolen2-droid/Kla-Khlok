@@ -396,7 +396,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-UI-001 — Tabletop visual UI pass
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `45bed70`
 - Functional test: `npm run typecheck --workspace @kla-khlok/web`; `npm run build --workspace @kla-khlok/web`; browser visual inspection at `/play`
 - Result: `PASS`
 - Evidence: Reworked the live play screen into a wider responsive tabletop layout with clearer score/result hierarchy, stronger panel grouping, compact mapping labels, larger scene framing, tactile controls, and mobile-safe seat/pack grids; browser screenshot and accessibility tree confirm the route remains usable.
