@@ -34,3 +34,22 @@ nav a { color: #e8b36b; font-weight: 700; }
 h1 { margin: 0; font-size: clamp(2.4rem, 10vw, 5rem); line-height: 0.95; }
 .status { color: #e8b36b; font-weight: 700; }
 .description { max-width: 38ch; color: #f2ddc2; line-height: 1.6; }
+
+.scene-frame {
+  height: clamp(220px, 42vw, 340px);
+  margin: 28px 0 20px;
+  overflow: hidden;
+  border: 1px solid rgba(247, 234, 215, 0.22);
+  border-radius: 14px;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  color: #2c1710;
+  background: #e8b36b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

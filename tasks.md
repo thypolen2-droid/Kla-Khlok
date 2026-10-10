@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-009 DONE` — basic web shell and routes complete; next job is `JOB-010`.
+**Current status:** `JOB-010 DONE` — bowl and animated lid scene complete; next job is `JOB-011`.
 
 ## One-job-at-a-time system
 
@@ -45,7 +45,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 7 | JOB-007 | Cryptographic outcome sampler | JOB-006 | DONE — browser-byte and server-index adapters return valid outcomes and pass rejection/range tests. |
 | 8 | JOB-008 | Foundation documentation | JOB-002 | DONE — documentation links and `npm run docs:check` pass. |
 | 9 | JOB-009 | Basic web shell and route | JOB-002 | DONE — browser smoke test verified `/` and `/play` render the shell and navigation. |
-| 10 | JOB-010 | Bowl and lid scene | JOB-009 | Browser visual smoke test shows a bowl, lid, and camera at the intended desktop and mobile aspect ratios. |
+| 10 | JOB-010 | Bowl and lid scene | JOB-009 | DONE — browser visual test shows the 3D bowl/lid scene and the lid control animates open/closed. |
 | 11 | JOB-011 | Three textured cube bodies | JOB-010 | Browser test confirms exactly three visible cube bodies and six material slots per cube. |
 | 12 | JOB-012 | Face orientation mapping | JOB-011 | Mapping test verifies all 18 face/normal combinations and a debug view displays the selected top face. |
 | 13 | JOB-013 | Visual physics containment | JOB-011 | Automated scene test runs a fast shake and confirms all dice remain inside the bowl bounds. |
@@ -181,6 +181,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Type-check and Vite production build passed; browser smoke test rendered the `Kla Khlok` heading, navigation, foundation status, and route-specific text at both `http://127.0.0.1:5173/` and `/play`.
 - Remaining limitation: The play route is a foundation placeholder; bowl, lid, dice, and gameplay controls begin in JOB-010 and later jobs.
 - Rollback note: Revert this job's commit to remove route-aware shell changes while preserving the scaffold and shared foundation.
+
+### JOB-010 — Bowl and lid scene
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server and inspect the 3D scene in a browser
+- Result: `PASS`
+- Evidence: Three.js/React Three Fiber scene rendered a lit bowl, rim, lid, and camera in the browser; the `Open lid` control changed to `Close lid` and visibly animated the lid; type-check and production build passed.
+- Remaining limitation: The production bundle is currently large because Three.js and React Three Fiber are bundled together; optimization is tracked for the release phase.
+- Rollback note: Revert this job's commit to remove Three.js scene dependencies and bowl/lid presentation while preserving the web shell.
 ```
 
 ## Delivery order

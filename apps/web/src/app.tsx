@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { GAME_NAME, GAME_VERSION } from "@kla-khlok/shared";
+import { DiceTableScene } from "./components/DiceTableScene";
 
 export function App() {
   const path = window.location.pathname;
   const isPlayRoute = path === "/play";
+  const [lidOpen, setLidOpen] = useState(false);
 
   return (
     <main className="app-shell">
@@ -21,6 +24,10 @@ export function App() {
             ? "The playable table will be assembled in the next gameplay jobs."
             : "The game foundation is ready for the shared rules and playable dice jobs."}
         </p>
+        <DiceTableScene lidOpen={lidOpen} />
+        <button type="button" onClick={() => setLidOpen((open) => !open)}>
+          {lidOpen ? "Close lid" : "Open lid"}
+        </button>
       </section>
     </main>
   );
