@@ -196,7 +196,7 @@ export function App() {
   });
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${isPlayRoute ? " play-shell" : ""}`}>
       <section className="welcome-card" aria-labelledby="game-title">
         <nav aria-label="Main navigation">
           <a href="/">Home</a>
@@ -204,22 +204,28 @@ export function App() {
         </nav>
         <p className="eyebrow">ខ្លាឃ្លោក · Foundation</p>
         <h1 id="game-title">{GAME_NAME}</h1>
-        <p className="status">{isPlayRoute ? "Play route ready" : "Home route ready"} · version {GAME_VERSION}</p>
-        <p className="description">
-          {isPlayRoute ? "One local demo seat is ready to test the authoritative roll lifecycle." : "The game foundation is ready for the shared rules and playable dice jobs."}
-        </p>
-        <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber} · Motion {Math.round(motionIntensity * 100)}%</p>
-        <section className="score-panel" aria-labelledby="score-panel-title">
+        <p className="status game-meta">{isPlayRoute ? "Play" : "Home"} · v{GAME_VERSION}</p>
+        <p className="description game-description">Roll three dice and reveal the symbols.</p>
+        <p className="phase-status compact-phase" aria-live="polite">{round.phase === "RESULTS" ? "Result revealed" : round.phase === "SHAKING" ? "Shake the dice" : "Ready to roll"}</p>
+        <DiceTableScene imageUrls={imageUrls} lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
+        <div className="primary-controls">
+          {round.phase === "SELECTING" && <button className="primary-roll" type="button" disabled={round.players.some((player) => !player.selection || !player.ready)} onClick={startRoll}>Roll dice</button>}
+          {round.phase === "SHAKING" && <button className="primary-roll stop-roll" type="button" onClick={stopRoll}>Stop dice</button>}
+          {(round.phase === "SETTLING" || round.phase === "REVEALING") && <p className="roll-status" aria-live="polite">The dice are settling…</p>}
+          {round.phase === "RESULTS" && <div className="result-actions"><button className="primary-roll" type="button" onClick={nextRound}>Roll again</button></div>}
+        </div>
+        <details className="settings-drawer">
+          <summary>Settings &amp; game options</summary>
+          <div className="settings-content">
+            <section className="score-panel" aria-labelledby="score-panel-title">
           <div className="seat-panel-heading"><h2 id="score-panel-title">Scoreboard</h2><span>{round.history.length}/10 rounds</span></div>
           <div className="score-list">
             {round.players.map((player) => <span key={player.playerId}>{player.playerId}: <strong>{player.score}</strong></span>)}
           </div>
           {round.latestResult && <p className="storage-status">{round.latestResult.winnerIds.length > 0 ? `Round winners: ${round.latestResult.winnerIds.join(", ")}` : "No-match round — no player scored."}</p>}
           {round.history.length > 0 && <ol className="history-list" aria-label="Round history">{round.history.slice().reverse().map((result) => <li key={result.roundId}>Round {result.roundNumber}: {result.outcome.join(" · ")} · {result.winnerIds.length ? result.winnerIds.join(", ") : "no match"}</li>)}</ol>}
-          {round.phase === "SELECTING" && <button type="button" onClick={toggleDiceOnly}>{round.scoringEnabled ? "Enable dice-only mode" : "Disable dice-only mode"}</button>}
-        </section>
-        <DiceTableScene imageUrls={imageUrls} lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
-        <section className="seat-panel" aria-labelledby="seat-panel-title">
+            </section>
+            <section className="seat-panel" aria-labelledby="seat-panel-title">
           <div className="seat-panel-heading">
             <h2 id="seat-panel-title">Local seats</h2>
             <span>{round.players.length}/8</span>
@@ -241,20 +247,25 @@ export function App() {
             ))}
           </div>
           {round.phase === "SELECTING" && <div className="seat-actions"><button type="button" disabled={round.players.length >= 8} onClick={addSeat}>Add seat</button><button type="button" disabled={round.players.length <= 1} onClick={removeSeat}>Remove seat</button></div>}
-        </section>
-        <ul className="face-map" aria-label="Die face mapping debug view">
+            </section>
+            <ul className="face-map" aria-label="Die face mapping debug view">
           {DIE_FACE_DIRECTIONS.map((direction, index) => (
             <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>
           ))}
-        </ul>
-        {symbolBoard}
-        <PackEditor onSlotImageChange={(slotId, previewUrl) => setImageUrls((current) => ({ ...current, [slotId]: previewUrl }))} />
-        {round.phase === "SELECTING" && <button type="button" disabled={round.players.some((player) => !player.selection || !player.ready)} onClick={startRoll}>Tap to Start</button>}
-        {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
-        {!motionEnabled && <button type="button" onClick={enableMotion}>Enable Motion</button>}
-        <button type="button" onClick={() => setMuted((current) => !current)}>{muted ? "Unmute" : "Mute"}</button>
-        <p className="motion-status" aria-live="polite">{motionStatus}</p>
-        {round.phase !== "RESULTS" && round.phase !== "MATCH_FINISHED" && (
+            </ul>
+            <section className="custom-symbols" aria-labelledby="symbols-title">
+              <h2 id="symbols-title">Customize symbols</h2>
+              {symbolBoard}
+              <PackEditor onSlotImageChange={(slotId, previewUrl) => setImageUrls((current) => ({ ...current, [slotId]: previewUrl }))} />
+            </section>
+            <div className="settings-controls">
+              {!motionEnabled && <button type="button" onClick={enableMotion}>Enable motion</button>}
+              <button type="button" onClick={() => setMuted((current) => !current)}>{muted ? "Unmute sound" : "Mute sound"}</button>
+              {round.phase === "SELECTING" && <button type="button" onClick={toggleDiceOnly}>{round.scoringEnabled ? "Enable dice-only mode" : "Disable dice-only mode"}</button>}
+              {(round.phase === "RESULTS" || round.phase === "MATCH_FINISHED") && <button type="button" onClick={newMatch}>New match</button>}
+            </div>
+            <p className="motion-status" aria-live="polite">{motionStatus}</p>
+            {round.phase !== "RESULTS" && round.phase !== "MATCH_FINISHED" && (
           <button
             className="hold-control"
             type="button"
@@ -268,16 +279,11 @@ export function App() {
           >
             Hold to Shake
           </button>
-        )}
-        {(round.phase === "SETTLING" || round.phase === "REVEALING") && <p className="phase-status">Settling… reveal is locked to the original outcome.</p>}
-        {round.phase === "RESULTS" && (
-          <>
-            <p className="result-status" aria-live="polite">Result: {round.latestResult?.outcome.join(" · ")} · Points: {round.latestResult?.pointsDelta.local ?? 0}</p>
-            <button type="button" onClick={nextRound}>Next Round</button>
-            <button type="button" onClick={newMatch}>New Match</button>
-          </>
-        )}
-        {round.phase === "MATCH_FINISHED" && <button type="button" onClick={newMatch}>New Match</button>}
+            )}
+            {(round.phase === "SETTLING" || round.phase === "REVEALING") && <p className="phase-status">Settling… reveal is locked to the original outcome.</p>}
+            {round.phase === "RESULTS" && <p className="result-status" aria-live="polite">Points this round: {round.latestResult?.pointsDelta.local ?? 0}</p>}
+          </div>
+        </details>
       </section>
     </main>
   );

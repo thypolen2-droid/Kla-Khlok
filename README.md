@@ -4,13 +4,13 @@ A planned mobile and desktop web game inspired by Khmer ខ្លាឃ្លោ
 
 ## Project status
 
-This repository currently contains the product specification and implementation tracker. The playable web application has not been scaffolded yet.
+This repository contains the product specification, implementation tracker, and a playable web application prototype.
 
 - Product specification: [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md)
 - Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
 - Delivery plan: [`docs/PLAN.md`](docs/PLAN.md)
 - Documentation task link: [`docs/TASKS.md`](docs/TASKS.md)
-- Current milestone: JOB-031 — Online intensity stream and deadlines
+- Current milestone: JOB-UI-002 — Focused play screen and settings drawer complete; next JOB-031 — Online intensity stream and deadlines
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.
@@ -57,7 +57,7 @@ npm run test
 npm run docs:check
 ```
 
-The next implementation job is `JOB-009` in [`tasks.md`](tasks.md). Keep this section aligned with commands that are actually run.
+The next implementation job is `JOB-031` in [`tasks.md`](tasks.md). Keep this section aligned with commands that are actually run.
 
 ## Design constraints
 

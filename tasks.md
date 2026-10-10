@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-UI-001 DONE` — tabletop visual UI pass complete; next job is `JOB-031`.
+**Current status:** `JOB-UI-002 DONE` — focused play screen and settings drawer complete; next job is `JOB-031`.
 
 ## One-job-at-a-time system
 
@@ -402,6 +402,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Reworked the live play screen into a wider responsive tabletop layout with clearer score/result hierarchy, stronger panel grouping, compact mapping labels, larger scene framing, tactile controls, and mobile-safe seat/pack grids; browser screenshot and accessibility tree confirm the route remains usable.
 - Remaining limitation: Game art and uploaded symbol illustrations are still placeholders until the image-pack workflow supplies real content.
 - Rollback note: Revert this job's commit to restore the previous stylesheet while preserving all gameplay behavior.
+
+### JOB-UI-002 — Focused play screen and settings drawer
+
+- Status: `DONE`
+- Commit: `<pending until code commit>`
+- Functional test: `npm run typecheck --workspace @kla-khlok/web`; `npm run build --workspace @kla-khlok/web`; browser roll test at `/play` using Roll dice → Stop dice; open Settings & game options
+- Result: `PASS`
+- Evidence: The play route now shows only the game title, full 3D bowl/dice scene, and one primary roll action. The Local seats, scoreboard, symbol pack editor, motion, audio, and debug options are hidden inside a closed Settings drawer. The result overlay shows three revealed symbol cards with image backgrounds when available and symbol IDs as fallback. Browser accessibility state and screenshot confirmed the focused idle view, expanded settings content, and result state.
+- Remaining limitation: The in-app browser can fall back to the CSS 3D dice preview when WebGL is unavailable; uploaded symbol photos are still session-only until the planned persistent pack jobs land.
+- Rollback note: Revert this job's code commit to restore the previous multi-panel play layout; no rules or persistence behavior is changed.
 
 ## Delivery order
 

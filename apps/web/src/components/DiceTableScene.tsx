@@ -181,22 +181,42 @@ function Table({ lidOpen, shaking, frozen, imageUrls }: DiceTableSceneProps & { 
   );
 }
 
+function FallbackDiceTable() {
+  return (
+    <div className="fallback-table" aria-label="Three-dimensional dice preview">
+      <div className="fallback-bowl">
+        <div className="fallback-die fallback-die-left">s2</div>
+        <div className="fallback-die fallback-die-center">s4</div>
+        <div className="fallback-die fallback-die-right">s3</div>
+      </div>
+      <span className="fallback-caption">3D dice preview</span>
+    </div>
+  );
+}
+
 export function DiceTableScene({ lidOpen, revealOutcome = null, shaking = false, imageUrls = {} }: DiceTableSceneProps & { readonly shaking?: boolean }) {
   return (
     <div className="scene-frame" aria-label="3D Kla Khlok bowl and lid scene">
       <Canvas
         shadows
         camera={{ position: [0, 4.1, 6.8], fov: 42 }}
-        fallback={<div className="scene-fallback">3D graphics unavailable. Use the readable 2D result below.</div>}
+        fallback={<FallbackDiceTable />}
       >
         <Physics gravity={[0, -9.81, 0]}>
           <Table frozen={Boolean(revealOutcome)} imageUrls={imageUrls} lidOpen={lidOpen} shaking={shaking} />
         </Physics>
       </Canvas>
       {revealOutcome && (
-        <div className="result-overlay" aria-label="Authoritative 2D result fallback">
+        <div className="result-overlay" aria-label="Authoritative result">
           <span>Result</span>
-          {revealOutcome.map((symbolId, index) => <strong key={`${symbolId}-${index}`}>{symbolId}</strong>)}
+          <div className="result-cards">
+            {revealOutcome.map((symbolId, index) => (
+              <div className="result-card" key={`${symbolId}-${index}`} aria-label={`Result ${symbolId}`}>
+                <span className="result-card-image" style={imageUrls[symbolId] ? { backgroundImage: `url(${imageUrls[symbolId]})` } : undefined}>{imageUrls[symbolId] ? "" : symbolId}</span>
+                <strong>{symbolId}</strong>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
