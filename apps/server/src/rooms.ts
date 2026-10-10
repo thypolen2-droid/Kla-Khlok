@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { SYMBOL_IDS, type SymbolId } from "@kla-khlok/shared";
+import { createServerCryptoSampler, SYMBOL_IDS, type DiceOutcome, type SymbolId } from "@kla-khlok/shared";
+import { randomInt } from "node:crypto";
 
 export const MAX_ROOM_PLAYERS = 8;
 
@@ -15,7 +16,9 @@ export interface RoomSnapshot {
   readonly roomId: string;
   readonly roomVersion: number;
   readonly hostPlayerId: string;
-  readonly phase: "SELECTING" | "LOCKED";
+  readonly phase: "SELECTING" | "LOCKED" | "ROLLING" | "RESULTS";
+  readonly outcome: DiceOutcome | null;
+  readonly revealAt: number | null;
   readonly players: readonly Omit<RoomPlayer, "rejoinToken">[];
 }
 
@@ -31,7 +34,9 @@ interface Room {
   readonly hostPlayerId: string;
   readonly players: RoomPlayer[];
   roomVersion: number;
-  phase: "SELECTING" | "LOCKED";
+  phase: "SELECTING" | "LOCKED" | "ROLLING" | "RESULTS";
+  outcome: DiceOutcome | null;
+  revealAt: number | null;
   readonly deduplicatedCommands: Map<string, { readonly snapshot: RoomSnapshot }>;
 }
 
@@ -44,13 +49,18 @@ const normalizeName = (value: unknown): string => {
 
 export class RoomManager {
   private readonly rooms = new Map<string, Room>();
+  private readonly sampleOutcome: () => DiceOutcome;
+
+  constructor(sampleOutcome = createServerCryptoSampler((maxExclusive) => randomInt(maxExclusive))) {
+    this.sampleOutcome = sampleOutcome;
+  }
 
   createRoom(hostNameInput: unknown): { snapshot: RoomSnapshot; credential: string } {
     const hostName = normalizeName(hostNameInput);
     const roomId = randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase();
     const hostPlayerId = `player-${randomUUID().slice(0, 8)}`;
     const credential = randomUUID();
-    const room: Room = { roomId, hostPlayerId, phase: "SELECTING", players: [{ playerId: hostPlayerId, name: hostName, rejoinToken: credential, selection: null, ready: false }], roomVersion: 1, deduplicatedCommands: new Map() };
+    const room: Room = { roomId, hostPlayerId, phase: "SELECTING", outcome: null, revealAt: null, players: [{ playerId: hostPlayerId, name: hostName, rejoinToken: credential, selection: null, ready: false }], roomVersion: 1, deduplicatedCommands: new Map() };
     this.rooms.set(roomId, room);
     return { snapshot: this.snapshot(room), credential };
   }
@@ -105,6 +115,18 @@ export class RoomManager {
       if (actor.playerId !== room.hostPlayerId) throw new RoomError(403, "Only the host may lock the round");
       if (room.players.some((player) => !player.ready || !player.selection)) throw new RoomError(409, "Every player must be ready");
       room.phase = "LOCKED";
+    } else if (typed.type === "round:roll") {
+      if (actor.playerId !== room.hostPlayerId) throw new RoomError(403, "Only the host may roll");
+      if (room.phase !== "LOCKED") throw new RoomError(409, "Round is not locked");
+      room.outcome = this.sampleOutcome();
+      room.revealAt = Date.now() + 2_000;
+      room.phase = "ROLLING";
+    } else if (typed.type === "round:reveal") {
+      if (room.phase !== "ROLLING" || !room.revealAt) throw new RoomError(409, "Round is not awaiting reveal");
+      const now = typeof (typed as { now?: unknown }).now === "number" ? (typed as { now: number }).now : Date.now();
+      if (now < room.revealAt) throw new RoomError(409, "Reveal deadline has not passed");
+      room.phase = "RESULTS";
+      room.revealAt = null;
     } else throw new RoomError(400, "Unsupported room command");
     room.roomVersion += 1;
     const acknowledgment = { snapshot: this.snapshot(room) };
@@ -113,6 +135,6 @@ export class RoomManager {
   }
 
   private snapshot(room: Room): RoomSnapshot {
-    return { roomId: room.roomId, roomVersion: room.roomVersion, phase: room.phase, hostPlayerId: room.hostPlayerId, players: room.players.map(({ rejoinToken: _token, ...player }) => player) };
+    return { roomId: room.roomId, roomVersion: room.roomVersion, phase: room.phase, outcome: room.phase === "RESULTS" ? room.outcome : null, revealAt: room.revealAt, hostPlayerId: room.hostPlayerId, players: room.players.map(({ rejoinToken: _token, ...player }) => player) };
   }
 }

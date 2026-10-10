@@ -45,3 +45,18 @@ test("only the host can lock a fully ready roster and locked selections cannot c
   assert.equal(locked.snapshot.phase, "LOCKED");
   assert.throws(() => manager.applyCommand(created.snapshot.roomId, joined.credential, "late-select", { type: "player:select", selection: "s2", expectedVersion: locked.snapshot.roomVersion }), /locked/);
 });
+
+test("server keeps one outcome private until the reveal deadline", () => {
+  const manager = new RoomManager(() => ["s1", "s2", "s3"]);
+  const created = manager.createRoom("Host");
+  const selected = manager.applyCommand(created.snapshot.roomId, created.credential, "select", { type: "player:select", selection: "s1", expectedVersion: 1 });
+  const ready = manager.applyCommand(created.snapshot.roomId, created.credential, "ready", { type: "player:ready", expectedVersion: selected.snapshot.roomVersion });
+  const locked = manager.applyCommand(created.snapshot.roomId, created.credential, "lock", { type: "round:lock", expectedVersion: ready.snapshot.roomVersion });
+  const rolling = manager.applyCommand(created.snapshot.roomId, created.credential, "roll", { type: "round:roll", expectedVersion: locked.snapshot.roomVersion });
+  assert.equal(rolling.snapshot.phase, "ROLLING");
+  assert.equal(rolling.snapshot.outcome, null);
+  assert.ok(rolling.snapshot.revealAt);
+  assert.throws(() => manager.applyCommand(created.snapshot.roomId, created.credential, "early-reveal", { type: "round:reveal", expectedVersion: rolling.snapshot.roomVersion, now: rolling.snapshot.revealAt - 1 }), /deadline/);
+  const revealed = manager.applyCommand(created.snapshot.roomId, created.credential, "reveal", { type: "round:reveal", expectedVersion: rolling.snapshot.roomVersion, now: rolling.snapshot.revealAt });
+  assert.deepEqual(revealed.snapshot.outcome, ["s1", "s2", "s3"]);
+});
