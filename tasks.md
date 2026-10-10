@@ -406,7 +406,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-UI-002 — Focused play screen and settings drawer
 
 - Status: `DONE`
-- Commit: `<pending until code commit>`
+- Commit: `fc5e291`
 - Functional test: `npm run typecheck --workspace @kla-khlok/web`; `npm run build --workspace @kla-khlok/web`; browser roll test at `/play` using Roll dice → Stop dice; open Settings & game options
 - Result: `PASS`
 - Evidence: The play route now shows only the game title, full 3D bowl/dice scene, and one primary roll action. The Local seats, scoreboard, symbol pack editor, motion, audio, and debug options are hidden inside a closed Settings drawer. The result overlay shows three revealed symbol cards with image backgrounds when available and symbol IDs as fallback. Browser accessibility state and screenshot confirmed the focused idle view, expanded settings content, and result state.
