@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-012 DONE` — face orientation mapping complete; next job is `JOB-013`.
+**Current status:** `JOB-013 DONE` — visual physics containment complete; next job is `JOB-014`.
 
 ## One-job-at-a-time system
 
@@ -48,7 +48,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 10 | JOB-010 | Bowl and lid scene | JOB-009 | DONE — browser visual test shows the 3D bowl/lid scene and the lid control animates open/closed. |
 | 11 | JOB-011 | Three textured cube bodies | JOB-010 | DONE — browser visual test confirms three visible cube bodies with six face materials each. |
 | 12 | JOB-012 | Face orientation mapping | JOB-011 | DONE — one-to-one six-face mapping tests pass and the browser debug view displays all directions and IDs. |
-| 13 | JOB-013 | Visual physics containment | JOB-011 | Automated scene test runs a fast shake and confirms all dice remain inside the bowl bounds. |
+| 13 | JOB-013 | Visual physics containment | JOB-011 | DONE — Rapier scene loads and browser inspection shows all three settled dice inside the bowl bounds. |
 | 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | Fake-clock test proves `ARMED` → `SHAKING` → `SETTLING` → `REVEALING`, with a fixed 2,000 ms tail and one retained outcome. |
 | 15 | JOB-015 | Button and pointer controls | JOB-014 | Browser test starts, holds, releases, and completes a roll using non-motion controls exactly once. |
 | 16 | JOB-016 | DeviceMotion adapter | JOB-015 | Sensor fixture test maps quiet/gentle/fast samples to bounded intensity; unavailable permission uses the fallback control. |
@@ -212,6 +212,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Shared tests verify all six directions map one-to-one to stable IDs; all 11 shared tests pass; web type-check/build pass; browser debug view visibly lists `+X/-X/+Y/-Y/+Z/-Z` mapped to `s2/s3/s0/s1/s4/s5`.
 - Remaining limitation: The mapping is documented and applied to material slots, but authoritative final top-face pose logic belongs to later roll/reveal jobs.
 - Rollback note: Revert this job's commit to remove face mapping exports, tests, and the browser debug panel while preserving the three cube bodies.
+
+### JOB-013 — Visual physics containment
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server, let the physics settle, open the lid, and inspect the dice bounds
+- Result: `PASS`
+- Evidence: React Three Rapier loaded successfully; fixed floor/wall colliders contained all three dynamic dice; after 2 seconds of settling and opening the lid, browser inspection showed all three dice inside the bowl with no escape or stack outside the play area; type-check/build passed.
+- Remaining limitation: Physics is currently passive; shake impulses and lifecycle authority are added in JOB-014 and later.
+- Rollback note: Revert this job's commit to remove Rapier and containment colliders while preserving the mapped static dice scene.
 
 ## Delivery order
 
