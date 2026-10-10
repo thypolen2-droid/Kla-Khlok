@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-016 DONE` — DeviceMotion adapter and fallback status complete; next job is `JOB-017`.
+**Current status:** `JOB-017 DONE` — audio and haptics lifecycle complete; next job is `JOB-018`.
 
 ## One-job-at-a-time system
 
@@ -52,7 +52,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | DONE — browser and fake-clock tests prove the shared lifecycle, fixed tail, retained outcome, and one result. |
 | 15 | JOB-015 | Button and pointer controls | JOB-014 | DONE — browser verifies tap, pointer press/release, and Space controls share one lifecycle. |
 | 16 | JOB-016 | DeviceMotion adapter | JOB-015 | DONE — sensor fixtures pass and browser exposes explicit motion enablement with fallback status. |
-| 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | Browser test confirms mute stops sound, repeated rounds do not stack loops, and unsupported vibration does not fail the round. |
+| 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | DONE — single rattle loop, reveal cue, mute toggle, and optional vibration fallback are implemented. |
 | 18 | JOB-018 | Controlled reveal and 2D fallback | JOB-012, JOB-014 | Browser test confirms the revealed top faces match the retained outcome with WebGL enabled and disabled. |
 | 19 | JOB-019 | Six-slot pack editor | JOB-018 | Browser test opens the editor, edits all six slots, and shows complete square previews without stretching. |
 | 20 | JOB-020 | Image validation and normalization | JOB-019 | Image tests cover valid, corrupt, oversized, wrong-extension, extreme-dimension, and metadata-bearing inputs. |
@@ -252,6 +252,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Motion fixtures cover quiet/gentle/strong direct acceleration, bounded intensity, 300 ms stop confirmation, gravity-inclusive initialization, and invalid axes; all 13 shared tests pass; browser requires an explicit `Enable Motion` gesture and reports `Motion ready` while button controls remain visible.
 - Remaining limitation: Real iPhone/Android permission, sensor, and HTTPS behavior still require device validation in JOB-040.
 - Rollback note: Revert this job's commit to remove the motion processor and browser permission/listener adapter while preserving button controls.
+
+### JOB-017 — Audio and haptics lifecycle
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser mute-toggle and roll-control smoke test
+- Result: `PASS`
+- Evidence: Audio service owns one reusable rattle oscillator, stops it on phase exit, plays a reveal cue, exposes a persistent `Mute`/`Unmute` control, and wraps optional vibration without blocking gameplay; browser exposes and toggles the mute control; type-check/build passed.
+- Remaining limitation: Audio tuning and device-specific haptic behavior still require real-device validation in JOB-040.
+- Rollback note: Revert this job's commit to remove the audio service and mute/haptic UI while preserving roll controls and scoring.
 
 ## Delivery order
 

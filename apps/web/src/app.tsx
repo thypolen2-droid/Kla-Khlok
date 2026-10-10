@@ -11,6 +11,7 @@ import {
 } from "@kla-khlok/shared";
 import type { RoundState } from "@kla-khlok/shared";
 import { DiceTableScene } from "./components/DiceTableScene";
+import { AudioService } from "./audio/AudioService";
 
 export function App() {
   const path = window.location.pathname;
@@ -18,9 +19,11 @@ export function App() {
   const sampler = useMemo(() => createBrowserCryptoSampler(), []);
   const dependencies = useMemo(() => ({ sampleOutcome: sampler }), [sampler]);
   const motionProcessor = useMemo(() => new MotionProcessor(), []);
+  const audio = useMemo(() => new AudioService(), []);
   const [motionEnabled, setMotionEnabled] = useState(false);
   const [motionStatus, setMotionStatus] = useState("Motion not enabled");
   const [motionIntensity, setMotionIntensity] = useState(0);
+  const [muted, setMuted] = useState(false);
   const [round, setRound] = useState<RoundState>(() => {
     let initial = createInitialRoundState(["local"]);
     initial = reduceRound(initial, { type: "START_MATCH" }, dependencies);
@@ -54,8 +57,27 @@ export function App() {
     return () => window.removeEventListener("devicemotion", onMotion);
   }, [motionEnabled, motionProcessor]);
 
+  useEffect(() => {
+    audio.setMuted(muted);
+  }, [audio, muted]);
+
+  useEffect(() => {
+    if (round.phase === "SHAKING") {
+      audio.startRattle(motionIntensity);
+    } else {
+      audio.stopRattle();
+    }
+    if (round.phase === "RESULTS") {
+      audio.playReveal();
+      audio.vibrate(35);
+    }
+  }, [audio, motionIntensity, round.phase]);
+
+  useEffect(() => () => audio.dispose(), [audio]);
+
   const lidOpen = round.phase === "SELECTING" || round.phase === "RESULTS";
   const startRoll = () => {
+    void audio.unlock();
     setRound((current) => {
       if (current.phase !== "SELECTING") return current;
       let next = reduceRound(current, { type: "ARM", actorId: "local" }, dependencies);
@@ -71,6 +93,7 @@ export function App() {
   const nextRound = () => setRound((current) => reduceRound(current, { type: "NEXT" }, dependencies));
 
   const enableMotion = async () => {
+    await audio.unlock();
     if (!("DeviceMotionEvent" in window)) {
       setMotionStatus("Motion unavailable — use button controls");
       return;
@@ -138,6 +161,7 @@ export function App() {
         {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Tap to Start</button>}
         {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
         {!motionEnabled && <button type="button" onClick={enableMotion}>Enable Motion</button>}
+        <button type="button" onClick={() => setMuted((current) => !current)}>{muted ? "Unmute" : "Mute"}</button>
         <p className="motion-status" aria-live="polite">{motionStatus}</p>
         {round.phase !== "RESULTS" && round.phase !== "MATCH_FINISHED" && (
           <button
