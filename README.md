@@ -8,7 +8,7 @@ This repository currently contains the product specification and implementation 
 
 - Product specification: [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md)
 - Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
-- Current milestone: JOB-007 — Cryptographic outcome sampler
+- Current milestone: JOB-008 — Foundation documentation
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.

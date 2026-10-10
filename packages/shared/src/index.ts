@@ -33,3 +33,10 @@ export type {
   RoundResult,
   RoundState,
 } from "./round.js";
+export {
+  createBrowserCryptoSampler,
+  createServerCryptoSampler,
+  sampleOutcomeFromByteSource,
+  sampleSymbolIndexFromByteSource,
+} from "./random.js";
+export type { RandomByteSource, RandomIndexSource } from "./random.js";
