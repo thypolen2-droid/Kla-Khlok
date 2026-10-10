@@ -6,6 +6,93 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Current status:** `TODO` — planning baseline only; no application scaffold exists yet.
 
+## One-job-at-a-time system
+
+This project is executed as a queue of small jobs. Only one job may be `IN_PROGRESS` at a time.
+
+### Session rule
+
+Start every job in a fresh chat window. Paste only the job card, the relevant files, and this GDD link. Do not ask a fresh session to redesign the whole project or work on a later job. The session must:
+
+1. Read the complete GDD and inspect the current repository state.
+2. Implement only the named job and its direct tests.
+3. Update this file with status, evidence, and limitations.
+4. Run the job's functional test before claiming completion.
+5. Stop after reporting the result; the next job starts in another clean session.
+
+### Job completion contract
+
+A job is `DONE` only when its functional test passes and the result is recorded. If the test fails, mark the job `BLOCKED`, record the failure, and do not begin the next job. Every job must be independently revertible by reverting its own commit or restoring its pre-job snapshot; do not combine unrelated jobs in one commit.
+
+### Fresh-session prompt
+
+Copy this prompt and replace the bracketed fields:
+
+> Work only on **[JOB ID — JOB NAME]** from `tasks.md` in this repository. Read `KLA_KHLOK_GDD.md` in full, inspect the current files, and preserve unrelated work. Do not implement later jobs. Make the smallest complete change that satisfies the job card. Add or update only the tests and documentation needed by this job. Run the required functional test: **[TEST]**. If it passes, update this job to `DONE` with the exact command and evidence. If it fails, leave the work in a recoverable state, mark it `BLOCKED`, record the error and likely cause, and stop.
+
+### Granular job queue
+
+Run these jobs in order. Each row is one clean session and one rollback boundary.
+
+| Order | Job ID | Single deliverable | Depends on | Functional test before `DONE` |
+| ---: | --- | --- | --- | --- |
+| 1 | JOB-001 | Repository and toolchain audit | GDD | Audit lists files, scripts, runtime versions, and applicable rules; no source changes are required. |
+| 2 | JOB-002 | Minimal monorepo scaffold | JOB-001 | Install, development, and build commands complete for the empty web/server/shared packages. |
+| 3 | JOB-003 | Shared symbol and phase types | JOB-002 | Type-check rejects an invalid symbol ID and accepts all six stable IDs and all documented phases. |
+| 4 | JOB-004 | Runtime payload schemas | JOB-003 | Schema tests reject malformed IDs, NaN, unknown phases, and incomplete packs. |
+| 5 | JOB-005 | Pure score functions | JOB-003 | Deterministic tests cover all 216 outcomes, six selections, 0/10/20/30 points, ties, and no-match rounds. |
+| 6 | JOB-006 | Pure round state machine | JOB-004, JOB-005 | Fake-clock reducer test completes one valid round and rejects invalid phase/role commands without side effects. |
+| 7 | JOB-007 | Cryptographic outcome sampler | JOB-006 | Sampler tests return exactly three IDs in range and exercise rejection boundaries without modulo bias. |
+| 8 | JOB-008 | Foundation documentation | JOB-002 | README commands work, and the documentation link/check test finds the required tracker and GDD. |
+| 9 | JOB-009 | Basic web shell and route | JOB-002 | Browser smoke test loads the app shell without console errors. |
+| 10 | JOB-010 | Bowl and lid scene | JOB-009 | Browser visual smoke test shows a bowl, lid, and camera at the intended desktop and mobile aspect ratios. |
+| 11 | JOB-011 | Three textured cube bodies | JOB-010 | Browser test confirms exactly three visible cube bodies and six material slots per cube. |
+| 12 | JOB-012 | Face orientation mapping | JOB-011 | Mapping test verifies all 18 face/normal combinations and a debug view displays the selected top face. |
+| 13 | JOB-013 | Visual physics containment | JOB-011 | Automated scene test runs a fast shake and confirms all dice remain inside the bowl bounds. |
+| 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | Fake-clock test proves `ARMED` → `SHAKING` → `SETTLING` → `REVEALING`, with a fixed 2,000 ms tail and one retained outcome. |
+| 15 | JOB-015 | Button and pointer controls | JOB-014 | Browser test starts, holds, releases, and completes a roll using non-motion controls exactly once. |
+| 16 | JOB-016 | DeviceMotion adapter | JOB-015 | Sensor fixture test maps quiet/gentle/fast samples to bounded intensity; unavailable permission uses the fallback control. |
+| 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | Browser test confirms mute stops sound, repeated rounds do not stack loops, and unsupported vibration does not fail the round. |
+| 18 | JOB-018 | Controlled reveal and 2D fallback | JOB-012, JOB-014 | Browser test confirms the revealed top faces match the retained outcome with WebGL enabled and disabled. |
+| 19 | JOB-019 | Six-slot pack editor | JOB-018 | Browser test opens the editor, edits all six slots, and shows complete square previews without stretching. |
+| 20 | JOB-020 | Image validation and normalization | JOB-019 | Image tests cover valid, corrupt, oversized, wrong-extension, extreme-dimension, and metadata-bearing inputs. |
+| 21 | JOB-021 | Pack texture propagation | JOB-020 | Browser test changes one slot and confirms the same normalized image appears on the board and corresponding die faces. |
+| 22 | JOB-022 | IndexedDB pack persistence | JOB-021 | Reload test retains a saved pack; simulated quota failure leaves the editor and game usable. |
+| 23 | JOB-023 | Local player seats and turn flow | JOB-006, JOB-018 | Browser test creates 1 and 8 seats, completes pass-and-pick, and locks confirmed selections at roll start. |
+| 24 | JOB-024 | Local scoring and history | JOB-023 | Ten-round deterministic match test produces the expected scores, history, tied winners, and no-match messages. |
+| 25 | JOB-025 | Dice-only mode and reset | JOB-024 | Browser test proves dice-only mode never awards scores and New Match clears history while retaining setup. |
+| 26 | JOB-026 | Local locked-round recovery | JOB-024 | Reload during each locked phase preserves the original result and cannot double-award points. |
+| 27 | JOB-027 | Room create/join and capacity | JOB-025 | Two browser contexts join one room; a ninth player is rejected and unauthorized rejoin credentials fail. |
+| 28 | JOB-028 | Online snapshots and deduplication | JOB-027 | Retrying a mutating command returns the original acknowledgment and leaves room state unchanged after the first application. |
+| 29 | JOB-029 | Online roster, ready, and host lock | JOB-028 | Non-host roll, missing readiness, post-lock selection, and stale-version commands are rejected. |
+| 30 | JOB-030 | Server-authoritative outcomes | JOB-029 | Multi-client test proves all clients receive one identical result and no outcome appears before reveal. |
+| 31 | JOB-031 | Online intensity stream and deadlines | JOB-030 | Dropped intensity packets and a silent host still resolve the original round at the server deadline. |
+| 32 | JOB-032 | Authenticated online image service | JOB-027 | Upload/download tests reject invalid content and unauthorized access while preserving the active pack after failed staging. |
+| 33 | JOB-033 | Shared pack activation | JOB-032 | Clients preload one candidate revision, activate it atomically, and cannot start with mixed revisions. |
+| 34 | JOB-034 | Online history and reconnect | JOB-030, JOB-033 | Eight-client ten-round test agrees on scores/history after a disconnect and reconnect. |
+| 35 | JOB-035 | Host transfer and cleanup | JOB-034 | Fake-clock test transfers a lost host exactly once and expires idle/empty rooms and files. |
+| 36 | JOB-036 | Khmer/English localization | JOB-025 | Browser test switches languages, renders long labels, and finds no missing required translation keys. |
+| 37 | JOB-037 | Accessibility and failure paths | JOB-025, JOB-035 | Keyboard, reduced-motion, low-quality, WebGL-loss, sensor-denial, storage-failure, and network-error flows remain actionable. |
+| 38 | JOB-038 | Pack export/import | JOB-022 | Export/import round-trip retains six images and rejects a malformed archive without replacing the current pack. |
+| 39 | JOB-039 | Automated release validation | JOB-038 | Rule, protocol, image, browser, type-check, and build commands pass; failures are recorded rather than hidden. |
+| 40 | JOB-040 | Real-device and performance validation | JOB-039 | iPhone/Android HTTPS motion/audio checks and performance measurements are recorded against GDD targets. |
+| 41 | JOB-041 | Release handoff | JOB-040 | A clean checkout follows README setup, starts the documented services, and the handoff report lists remaining limitations. |
+
+### Per-job handoff record
+
+At the end of each session, add or update one record using this format:
+
+```md
+### JOB-XXX — Name
+- Status: TODO | IN_PROGRESS | BLOCKED | DONE
+- Commit: <one commit for this job>
+- Functional test: `<exact command or manual test>`
+- Result: PASS | FAIL
+- Evidence: <what was observed>
+- Remaining limitation: <none or specific gap>
+- Rollback note: <how to revert only this job>
+```
+
 ## Delivery order
 
 | Phase | Goal | Depends on | Status |

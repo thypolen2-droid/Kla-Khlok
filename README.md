@@ -7,11 +7,15 @@ A planned mobile and desktop web game inspired by Khmer ខ្លាឃ្លោ
 This repository currently contains the product specification and implementation tracker. The playable web application has not been scaffolded yet.
 
 - Product specification: [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md)
-- Implementation backlog: [`tasks.md`](tasks.md)
+- Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
 - Current milestone: P0 Foundation — `TODO`
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.
+
+## How work is executed
+
+Implementation is intentionally sequential. Each numbered job in `tasks.md` gets a fresh chat session, one focused deliverable, one commit, and one functional test. A job is not complete until its test passes and the result is recorded. If it fails, the job is marked `BLOCKED` and can be reverted without rolling back unrelated work.
 
 ## Planned gameplay
 
