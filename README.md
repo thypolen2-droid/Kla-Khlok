@@ -10,7 +10,7 @@ This repository currently contains the product specification and implementation 
 - Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
 - Delivery plan: [`docs/PLAN.md`](docs/PLAN.md)
 - Documentation task link: [`docs/TASKS.md`](docs/TASKS.md)
-- Current milestone: JOB-024 — Local scoring and history
+- Current milestone: JOB-025 — Dice-only mode and reset
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.

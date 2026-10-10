@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-023 DONE` — local player seats and readiness flow complete; next job is `JOB-024`.
+**Current status:** `JOB-024 DONE` — local scoring and round history complete; next job is `JOB-025`.
 
 ## One-job-at-a-time system
 
@@ -322,6 +322,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Browser reached `8/8` local seats; each seat selected `s0` and confirmed ready; the host roll entered `SHAKING`, stop entered the settling lifecycle, and the authoritative result reached `RESULTS` with the overlay and score text.
 - Remaining limitation: Local seats currently use generated display IDs and a single device; score/history expansion is JOB-024 and online rooms are later jobs.
 - Rollback note: Revert this job's commit to remove the local seat panel and restore the single preselected demo seat while preserving the shared reducer.
+
+### JOB-024 — Local scoring and history
+
+- Status: `DONE`
+- Commit: `3ddae20`
+- Functional test: shared build/test; web type-check/build; browser scoreboard/history smoke check
+- Result: `PASS`
+- Evidence: 18 shared tests pass, including a deterministic ten-round match that retains history, tied winners, and a no-match result; browser exposes per-seat scores, round count, reverse chronological history, and no-match messaging while the play route remains usable.
+- Remaining limitation: Dice-only mode and reset semantics are JOB-025; the current scoreboard remains attached to the active in-memory match.
+- Rollback note: Revert this job's commit to remove scoreboard/history presentation and the ten-round regression test while preserving seat flow and reducer scoring.
 
 ## Delivery order
 
