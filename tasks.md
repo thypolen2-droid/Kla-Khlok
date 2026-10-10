@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-028 DONE` — versioned online snapshots and command deduplication complete; next job is `JOB-029`.
+**Current status:** `JOB-029 DONE` — online roster readiness and host lock complete; next job is `JOB-030`.
 
 ## One-job-at-a-time system
 
@@ -372,6 +372,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Room snapshots now carry `roomVersion`; a rename command advanced version 1→2, and retrying the same command ID returned version 2 with the original name rather than applying the second mutation; unit and live HTTP tests pass.
 - Remaining limitation: Commands are still in-memory and limited to the rename fixture; authoritative round commands, protocol validation, and reconnect sequencing are later jobs.
 - Rollback note: Revert this job's commit to remove version increments and command deduplication while preserving basic room creation/join behavior.
+
+### JOB-029 — Online roster, ready, and host lock
+
+- Status: `DONE`
+- Commit: `0086c7b`
+- Functional test: server type-check/build/test; live HTTP two-player select/ready/lock flow
+- Result: `PASS`
+- Evidence: Four server tests pass; live HTTP commands advanced a two-player room through both selections, both ready states, and a host-authorized lock at version 6; non-host lock, incomplete readiness, stale versions, and post-lock selection are rejected.
+- Remaining limitation: The locked room does not yet sample or broadcast an authoritative dice outcome; that is JOB-030.
+- Rollback note: Revert this job's commit to remove roster command validation and host lock while preserving room snapshots and deduplication.
 
 ## Delivery order
 
