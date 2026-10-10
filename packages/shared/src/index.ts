@@ -49,3 +49,12 @@ export {
 export type { DieFaceDirection } from "./faces.js";
 export { MotionProcessor } from "./motion.js";
 export type { MotionProcessorOptions, MotionResult, MotionSample, MotionVector } from "./motion.js";
+export {
+  ImageValidationError,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_PIXELS,
+  inspectImageBytes,
+  normalizeImageBytes,
+} from "./image.js";
+export type { ImageFormat, ImageInspection, NormalizedImage } from "./image.js";
