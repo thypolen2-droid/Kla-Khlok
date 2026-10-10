@@ -206,7 +206,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-012 — Face orientation mapping
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `69419fe`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`; `npm run build --workspace @kla-khlok/web`; browser debug-view inspection
 - Result: `PASS`
 - Evidence: Shared tests verify all six directions map one-to-one to stable IDs; all 11 shared tests pass; web type-check/build pass; browser debug view visibly lists `+X/-X/+Y/-Y/+Z/-Z` mapped to `s2/s3/s0/s1/s4/s5`.
