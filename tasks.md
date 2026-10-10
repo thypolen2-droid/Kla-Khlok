@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-007 DONE` — cryptographic sampler adapters complete; next job is `JOB-008`.
+**Current status:** `JOB-008 DONE` — foundation documentation complete; next job is `JOB-009`.
 
 ## One-job-at-a-time system
 
@@ -43,7 +43,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 5 | JOB-005 | Pure score functions | JOB-003 | DONE — exhaustive 216-outcome/six-selection tests and deterministic tie/no-match tests pass. |
 | 6 | JOB-006 | Pure round state machine | JOB-004, JOB-005 | DONE — fake-clock reducer completes a valid round, enforces the 2,000 ms tail, retains the original outcome, and rejects invalid commands. |
 | 7 | JOB-007 | Cryptographic outcome sampler | JOB-006 | DONE — browser-byte and server-index adapters return valid outcomes and pass rejection/range tests. |
-| 8 | JOB-008 | Foundation documentation | JOB-002 | README commands work, and the documentation link/check test finds the required tracker and GDD. |
+| 8 | JOB-008 | Foundation documentation | JOB-002 | DONE — documentation links and `npm run docs:check` pass. |
 | 9 | JOB-009 | Basic web shell and route | JOB-002 | Browser smoke test loads the app shell without console errors. |
 | 10 | JOB-010 | Bowl and lid scene | JOB-009 | Browser visual smoke test shows a bowl, lid, and camera at the intended desktop and mobile aspect ratios. |
 | 11 | JOB-011 | Three textured cube bodies | JOB-010 | Browser test confirms exactly three visible cube bodies and six material slots per cube. |
@@ -161,6 +161,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Browser-byte sampling rejects the 252–255 biased tail and maps accepted bytes to six symbols; server sampling requests `[0, 6)` three times and rejects invalid source values; all nine shared tests pass.
 - Remaining limitation: The adapters are ready for authority integration but are not yet wired into local or online gameplay.
 - Rollback note: Revert this job's commit to remove sampler adapters/tests while preserving the reducer and scoring system.
+
+### JOB-008 — Foundation documentation
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run docs:check`
+- Result: `PASS`
+- Evidence: Documentation check passed for README, GDD, root task tracker, delivery plan, and documentation task link; README lists the verified scaffold commands and current next job.
+- Remaining limitation: Feature-specific architecture, protocol, QA, asset, and changelog documents will be added as their implementation jobs require them.
+- Rollback note: Revert this job's commit to remove the new `docs/` files and documentation check without changing gameplay code.
 ```
 
 ## Delivery order

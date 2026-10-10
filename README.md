@@ -8,7 +8,9 @@ This repository currently contains the product specification and implementation 
 
 - Product specification: [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md)
 - Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
-- Current milestone: JOB-008 — Foundation documentation
+- Delivery plan: [`docs/PLAN.md`](docs/PLAN.md)
+- Documentation task link: [`docs/TASKS.md`](docs/TASKS.md)
+- Current milestone: JOB-009 — Basic web shell and route
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.
@@ -44,7 +46,18 @@ tests/       # Rule, image, protocol, and browser tests
 
 ## Development commands
 
-No install, development, build, or test scripts exist yet because the application scaffold is not present. The next implementation job is `JOB-002` in [`tasks.md`](tasks.md). Once the scaffold is added, this section must be updated with the exact commands that were actually run.
+The current scaffold supports these verified commands:
+
+```text
+npm install
+npm run dev
+npm run typecheck
+npm run build
+npm run test
+npm run docs:check
+```
+
+The next implementation job is `JOB-009` in [`tasks.md`](tasks.md). Keep this section aligned with commands that are actually run.
 
 ## Design constraints
 

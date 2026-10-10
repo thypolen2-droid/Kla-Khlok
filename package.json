@@ -11,7 +11,8 @@
     "dev": "concurrently \"npm run dev --workspace @kla-khlok/web\" \"npm run dev --workspace @kla-khlok/server\"",
     "build": "npm run build --workspace @kla-khlok/shared && npm run build --workspace @kla-khlok/web && npm run build --workspace @kla-khlok/server",
     "typecheck": "npm run build --workspace @kla-khlok/shared && npm run typecheck --workspace @kla-khlok/web && npm run typecheck --workspace @kla-khlok/server",
-    "test": "npm run build --workspace @kla-khlok/shared && npm run test --workspace @kla-khlok/shared"
+    "test": "npm run build --workspace @kla-khlok/shared && npm run test --workspace @kla-khlok/shared",
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
