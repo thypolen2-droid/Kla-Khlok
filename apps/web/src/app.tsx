@@ -12,6 +12,7 @@ import {
 import type { RoundState } from "@kla-khlok/shared";
 import { DiceTableScene } from "./components/DiceTableScene";
 import { AudioService } from "./audio/AudioService";
+import { PackEditor } from "./components/PackEditor";
 
 export function App() {
   const path = window.location.pathname;
@@ -158,6 +159,7 @@ export function App() {
             <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>
           ))}
         </ul>
+        <PackEditor />
         {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Tap to Start</button>}
         {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
         {!motionEnabled && <button type="button" onClick={enableMotion}>Enable Motion</button>}

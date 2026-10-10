@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-018 DONE` — controlled reveal and 2D fallback complete; next job is `JOB-019`.
+**Current status:** `JOB-019 DONE` — six-slot pack editor complete; next job is `JOB-020`.
 
 ## One-job-at-a-time system
 
@@ -216,7 +216,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-013 — Visual physics containment
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `339d933`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server, let the physics settle, open the lid, and inspect the dice bounds
 - Result: `PASS`
 - Evidence: React Three Rapier loaded successfully; fixed floor/wall colliders contained all three dynamic dice; after 2 seconds of settling and opening the lid, browser inspection showed all three dice inside the bowl with no escape or stack outside the play area; type-check/build passed.
@@ -226,7 +226,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-014 — Authoritative roll lifecycle
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `16b6710`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser test Start Shake → Stop Shake → wait 2,300 ms → inspect result
 - Result: `PASS`
 - Evidence: Browser entered `SHAKING`, then `SETTLING` with the locked-outcome message, and reached `RESULTS` after the two-second tail with one result and score display; shared reducer tests continue to pass and the browser uses the injected cryptographic sampler plus reducer for the lifecycle.
@@ -236,7 +236,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-015 — Button and pointer controls
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `0f67e6d`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser test tap Start, pointer press/release on Hold to Shake, and Space key press/release
 - Result: `PASS`
 - Evidence: Browser exposed `Tap to Start` and `Hold to Shake`; Space transitioned the round through `SHAKING` to `SETTLING`; pointer press/release also entered `SETTLING`; the existing Stop button remains available and all paths use the same reducer.
@@ -246,7 +246,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-016 — DeviceMotion adapter
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `98aafe1`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`; `npm run build --workspace @kla-khlok/web`; browser enable-motion/fallback check
 - Result: `PASS`
 - Evidence: Motion fixtures cover quiet/gentle/strong direct acceleration, bounded intensity, 300 ms stop confirmation, gravity-inclusive initialization, and invalid axes; all 13 shared tests pass; browser requires an explicit `Enable Motion` gesture and reports `Motion ready` while button controls remain visible.
@@ -256,7 +256,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-017 — Audio and haptics lifecycle
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `4f7e5d3`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser mute-toggle and roll-control smoke test
 - Result: `PASS`
 - Evidence: Audio service owns one reusable rattle oscillator, stops it on phase exit, plays a reveal cue, exposes a persistent `Mute`/`Unmute` control, and wraps optional vibration without blocking gameplay; browser exposes and toggles the mute control; type-check/build passed.
@@ -266,12 +266,22 @@ At the end of each session, add or update one record using this format:
 ### JOB-018 — Controlled reveal and 2D fallback
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `0ce4709`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser Start/Stop/wait test and result inspection
 - Result: `PASS`
 - Evidence: WebGL scene renders when available; Canvas fallback text is present for unsupported graphics; after the fixed tail, all three dice freeze in a controlled centered pose and the authoritative 2D overlay/result text matches the retained outcome exactly.
 - Remaining limitation: Face textures are still placeholder materials; custom image packs begin in JOB-019.
 - Rollback note: Revert this job's commit to remove the controlled pose and fallback/result overlay while preserving the lifecycle and physics scene.
+
+### JOB-019 — Six-slot pack editor
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server and inspect `/play`
+- Result: `PASS`
+- Evidence: The play screen renders a dedicated “Customize six symbols” editor with stable `s0`–`s5` labels, six independent image selectors, and square center-crop previews; the browser accessibility tree exposes all six slots and the existing game controls remain available.
+- Remaining limitation: The editor currently previews the selected image with CSS center/cover behavior; normalized image blobs, byte limits, metadata stripping, and corrupt-file rejection are JOB-020.
+- Rollback note: Revert this job's commit to remove the pack editor and its styles while preserving the playable dice scene and built-in symbol IDs.
 
 ## Delivery order
 
