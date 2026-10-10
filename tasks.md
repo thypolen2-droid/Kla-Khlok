@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-022 DONE` — IndexedDB pack persistence complete; next job is `JOB-023`.
+**Current status:** `JOB-023 DONE` — local player seats and readiness flow complete; next job is `JOB-024`.
 
 ## One-job-at-a-time system
 
@@ -312,6 +312,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Pack slots now persist image `Blob`s and labels through IndexedDB, reload reconstructs preview object URLs, and a storage failure reports session-only mode without replacing the active pack; the browser visibly exposes the fallback status while remaining playable.
 - Remaining limitation: Persistence currently stores the active pack only; pack naming, multiple saved packs, deletion, and quota-aware UI are later local-party jobs.
 - Rollback note: Revert this job's commit to remove IndexedDB persistence and restore session-only editor state.
+
+### JOB-023 — Local player seats and turn flow
+
+- Status: `DONE`
+- Commit: `c61fe8b`
+- Functional test: web type-check/build; browser add-seat test to 8 seats, pass-and-pick confirmation, host roll, stop, and 2,300 ms reveal wait
+- Result: `PASS`
+- Evidence: Browser reached `8/8` local seats; each seat selected `s0` and confirmed ready; the host roll entered `SHAKING`, stop entered the settling lifecycle, and the authoritative result reached `RESULTS` with the overlay and score text.
+- Remaining limitation: Local seats currently use generated display IDs and a single device; score/history expansion is JOB-024 and online rooms are later jobs.
+- Rollback note: Revert this job's commit to remove the local seat panel and restore the single preselected demo seat while preserving the shared reducer.
 
 ## Delivery order
 
