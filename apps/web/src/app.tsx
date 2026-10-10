@@ -14,6 +14,7 @@ import type { RoundState } from "@kla-khlok/shared";
 import { DiceTableScene } from "./components/DiceTableScene";
 import { AudioService } from "./audio/AudioService";
 import { PackEditor } from "./components/PackEditor";
+import { loadRoundState, saveRoundState } from "./storage/roundPersistence";
 
 export function App() {
   const path = window.location.pathname;
@@ -33,8 +34,11 @@ export function App() {
     let initial = createInitialRoundState(["local"]);
     initial = reduceRound(initial, { type: "START_MATCH" }, dependencies);
     initial = reduceRound(initial, { type: "SET_SELECTION", playerId: "local", selection: "s0" }, dependencies);
-    return reduceRound(initial, { type: "READY", playerId: "local" }, dependencies);
+    initial = reduceRound(initial, { type: "READY", playerId: "local" }, dependencies);
+    return loadRoundState(initial);
   });
+
+  useEffect(() => saveRoundState(round), [round]);
 
   useEffect(() => {
     if (round.phase !== "SETTLING" && round.phase !== "REVEALING") return;
