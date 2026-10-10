@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-024 DONE` — local scoring and round history complete; next job is `JOB-025`.
+**Current status:** `JOB-025 DONE` — dice-only mode and New Match reset complete; next job is `JOB-026`.
 
 ## One-job-at-a-time system
 
@@ -332,6 +332,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: 18 shared tests pass, including a deterministic ten-round match that retains history, tied winners, and a no-match result; browser exposes per-seat scores, round count, reverse chronological history, and no-match messaging while the play route remains usable.
 - Remaining limitation: Dice-only mode and reset semantics are JOB-025; the current scoreboard remains attached to the active in-memory match.
 - Rollback note: Revert this job's commit to remove scoreboard/history presentation and the ten-round regression test while preserving seat flow and reducer scoring.
+
+### JOB-025 — Dice-only mode and reset
+
+- Status: `DONE`
+- Commit: `ff6db8d`
+- Functional test: shared build/test; web type-check/build; browser enable dice-only mode, roll/stop/wait, inspect zero-score result, then New Match reset
+- Result: `PASS`
+- Evidence: Dice-only mode reached `RESULTS` with `Points: 0`, a no-match history message, and no score award; New Match returned to `SELECTING`, round 1, `0/10` history, and retained the existing seat/pack setup.
+- Remaining limitation: Locked-round reload recovery is JOB-026; persistence of an in-progress round is not yet wired to the match snapshot.
+- Rollback note: Revert this job's commit to remove the scoring flag, dice-only control, and New Match reset while preserving normal scoring/history behavior.
 
 ## Delivery order
 
