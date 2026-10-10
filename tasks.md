@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-027 DONE` — room create/join and capacity complete; next job is `JOB-028`.
+**Current status:** `JOB-028 DONE` — versioned online snapshots and command deduplication complete; next job is `JOB-029`.
 
 ## One-job-at-a-time system
 
@@ -362,6 +362,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Room creation plus seven joins produced an 8-player snapshot; the ninth join returned HTTP `409`; invalid rejoin credentials returned HTTP `403`; room snapshots omit private rejoin tokens; server unit fixtures pass.
 - Remaining limitation: The room manager is in-memory and has no online snapshot sequencing, command deduplication, or multi-process storage yet.
 - Rollback note: Revert this job's commit to remove the room HTTP endpoints and in-memory capacity manager while preserving the local game and health endpoint.
+
+### JOB-028 — Online snapshots and deduplication
+
+- Status: `DONE`
+- Commit: `1699a1c`
+- Functional test: server type-check/build/test; live HTTP create, command, and retry smoke test
+- Result: `PASS`
+- Evidence: Room snapshots now carry `roomVersion`; a rename command advanced version 1→2, and retrying the same command ID returned version 2 with the original name rather than applying the second mutation; unit and live HTTP tests pass.
+- Remaining limitation: Commands are still in-memory and limited to the rename fixture; authoritative round commands, protocol validation, and reconnect sequencing are later jobs.
+- Rollback note: Revert this job's commit to remove version increments and command deduplication while preserving basic room creation/join behavior.
 
 ## Delivery order
 
