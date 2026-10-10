@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { SYMBOL_IDS, type SymbolId } from "@kla-khlok/shared";
 
 export const MAX_ROOM_PLAYERS = 8;
 
@@ -6,12 +7,15 @@ export interface RoomPlayer {
   readonly playerId: string;
   name: string;
   readonly rejoinToken: string;
+  selection: SymbolId | null;
+  ready: boolean;
 }
 
 export interface RoomSnapshot {
   readonly roomId: string;
   readonly roomVersion: number;
   readonly hostPlayerId: string;
+  readonly phase: "SELECTING" | "LOCKED";
   readonly players: readonly Omit<RoomPlayer, "rejoinToken">[];
 }
 
@@ -27,6 +31,7 @@ interface Room {
   readonly hostPlayerId: string;
   readonly players: RoomPlayer[];
   roomVersion: number;
+  phase: "SELECTING" | "LOCKED";
   readonly deduplicatedCommands: Map<string, { readonly snapshot: RoomSnapshot }>;
 }
 
@@ -45,7 +50,7 @@ export class RoomManager {
     const roomId = randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase();
     const hostPlayerId = `player-${randomUUID().slice(0, 8)}`;
     const credential = randomUUID();
-    const room: Room = { roomId, hostPlayerId, players: [{ playerId: hostPlayerId, name: hostName, rejoinToken: credential }], roomVersion: 1, deduplicatedCommands: new Map() };
+    const room: Room = { roomId, hostPlayerId, phase: "SELECTING", players: [{ playerId: hostPlayerId, name: hostName, rejoinToken: credential, selection: null, ready: false }], roomVersion: 1, deduplicatedCommands: new Map() };
     this.rooms.set(roomId, room);
     return { snapshot: this.snapshot(room), credential };
   }
@@ -63,7 +68,7 @@ export class RoomManager {
     if (room.players.length >= MAX_ROOM_PLAYERS) throw new RoomError(409, "Room is full");
     const playerId = `player-${randomUUID().slice(0, 8)}`;
     const rejoinToken = randomUUID();
-    room.players.push({ playerId, name: normalizeName(nameInput), rejoinToken });
+    room.players.push({ playerId, name: normalizeName(nameInput), rejoinToken, selection: null, ready: false });
     return { snapshot: this.snapshot(room), credential: rejoinToken };
   }
 
@@ -83,8 +88,24 @@ export class RoomManager {
     const commandId = commandIdInput.trim();
     const previous = room.deduplicatedCommands.get(commandId);
     if (previous) return previous;
-    if (!command || typeof command !== "object" || (command as { type?: unknown }).type !== "player:rename") throw new RoomError(400, "Unsupported room command");
-    actor.name = normalizeName((command as { name?: unknown }).name);
+    if (!command || typeof command !== "object") throw new RoomError(400, "Unsupported room command");
+    const typed = command as { type?: unknown; name?: unknown; selection?: unknown; expectedVersion?: unknown };
+    if (typed.expectedVersion !== room.roomVersion) throw new RoomError(409, "Stale room version");
+    if (typed.type === "player:rename") actor.name = normalizeName(typed.name);
+    else if (typed.type === "player:select") {
+      if (room.phase === "LOCKED") throw new RoomError(409, "Selections are locked");
+      if (!SYMBOL_IDS.includes(typed.selection as SymbolId)) throw new RoomError(400, "Invalid symbol selection");
+      actor.selection = typed.selection as SymbolId;
+      actor.ready = false;
+    } else if (typed.type === "player:ready") {
+      if (room.phase === "LOCKED") throw new RoomError(409, "Round is locked");
+      if (!actor.selection) throw new RoomError(409, "Player must select a symbol first");
+      actor.ready = true;
+    } else if (typed.type === "round:lock") {
+      if (actor.playerId !== room.hostPlayerId) throw new RoomError(403, "Only the host may lock the round");
+      if (room.players.some((player) => !player.ready || !player.selection)) throw new RoomError(409, "Every player must be ready");
+      room.phase = "LOCKED";
+    } else throw new RoomError(400, "Unsupported room command");
     room.roomVersion += 1;
     const acknowledgment = { snapshot: this.snapshot(room) };
     room.deduplicatedCommands.set(commandId, acknowledgment);
@@ -92,6 +113,6 @@ export class RoomManager {
   }
 
   private snapshot(room: Room): RoomSnapshot {
-    return { roomId: room.roomId, roomVersion: room.roomVersion, hostPlayerId: room.hostPlayerId, players: room.players.map(({ rejoinToken: _token, ...player }) => player) };
+    return { roomId: room.roomId, roomVersion: room.roomVersion, phase: room.phase, hostPlayerId: room.hostPlayerId, players: room.players.map(({ rejoinToken: _token, ...player }) => player) };
   }
 }
