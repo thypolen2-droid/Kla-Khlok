@@ -276,7 +276,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-019 — Six-slot pack editor
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `72deb1a`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server and inspect `/play`
 - Result: `PASS`
 - Evidence: The play screen renders a dedicated “Customize six symbols” editor with stable `s0`–`s5` labels, six independent image selectors, and square center-crop previews; the browser accessibility tree exposes all six slots and the existing game controls remain available.
