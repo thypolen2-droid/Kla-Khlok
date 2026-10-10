@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { DIE_FACE_SYMBOLS } from "@kla-khlok/shared";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
+import type { RapierRigidBody } from "@react-three/rapier";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Vector2 } from "three";
 import type { Group } from "three";
@@ -63,9 +64,24 @@ function Lid({ open }: { readonly open: boolean }) {
 
 const dieFaceColors = ["#e8b451", "#b94e37", "#f3d6a0", "#d9793e", "#f1e5c8", "#8d3e2b"];
 
-function Die({ position, rotation }: { readonly position: [number, number, number]; readonly rotation: [number, number, number] }) {
+function Die({ position, rotation, shaking }: { readonly position: [number, number, number]; readonly rotation: [number, number, number]; readonly shaking: boolean }) {
+  const body = useRef<RapierRigidBody>(null);
+
+  useFrame((state) => {
+    if (!shaking || !body.current) return;
+    const phase = state.clock.elapsedTime * 12;
+    body.current.applyImpulse(
+      { x: Math.sin(phase + position[0]) * 0.018, y: 0.012, z: Math.cos(phase + position[2]) * 0.018 },
+      true,
+    );
+    body.current.applyTorqueImpulse(
+      { x: Math.cos(phase) * 0.025, y: Math.sin(phase * 0.7) * 0.025, z: Math.sin(phase) * 0.025 },
+      true,
+    );
+  });
+
   return (
-    <RigidBody colliders="cuboid" position={position} rotation={rotation} restitution={0.45} friction={0.75}>
+    <RigidBody ref={body} colliders="cuboid" position={position} rotation={rotation} restitution={0.45} friction={0.75}>
       <mesh castShadow>
         <boxGeometry args={[0.82, 0.82, 0.82]} />
         {dieFaceColors.map((color, index) => (
@@ -76,12 +92,12 @@ function Die({ position, rotation }: { readonly position: [number, number, numbe
   );
 }
 
-function Dice() {
+function Dice({ shaking }: { readonly shaking: boolean }) {
   return (
     <group aria-label="Three dice">
-      <Die position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
-      <Die position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
-      <Die position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
+      <Die shaking={shaking} position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
+      <Die shaking={shaking} position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
+      <Die shaking={shaking} position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
     </group>
   );
 }
@@ -98,7 +114,7 @@ function ContainmentColliders() {
   );
 }
 
-function Table({ lidOpen }: DiceTableSceneProps) {
+function Table({ lidOpen, shaking }: DiceTableSceneProps & { readonly shaking: boolean }) {
   return (
     <>
       <color attach="background" args={["#35180f"]} />
@@ -106,7 +122,7 @@ function Table({ lidOpen }: DiceTableSceneProps) {
       <directionalLight castShadow intensity={2.5} position={[4, 7, 5]} shadow-mapSize={[1024, 1024]} />
       <pointLight intensity={18} distance={12} color="#e49a58" position={[-4, 3, 2]} />
       <Bowl />
-      <Dice />
+      <Dice shaking={shaking} />
       <ContainmentColliders />
       <Lid open={lidOpen} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.42, 0]} receiveShadow>
@@ -117,12 +133,12 @@ function Table({ lidOpen }: DiceTableSceneProps) {
   );
 }
 
-export function DiceTableScene({ lidOpen }: DiceTableSceneProps) {
+export function DiceTableScene({ lidOpen, shaking = false }: DiceTableSceneProps & { readonly shaking?: boolean }) {
   return (
     <div className="scene-frame" aria-label="3D Kla Khlok bowl and lid scene">
       <Canvas shadows camera={{ position: [0, 4.1, 6.8], fov: 42 }}>
         <Physics gravity={[0, -9.81, 0]}>
-          <Table lidOpen={lidOpen} />
+          <Table lidOpen={lidOpen} shaking={shaking} />
         </Physics>
       </Canvas>
     </div>

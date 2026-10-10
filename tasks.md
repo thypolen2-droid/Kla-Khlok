@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-013 DONE` — visual physics containment complete; next job is `JOB-014`.
+**Current status:** `JOB-014 DONE` — authoritative roll lifecycle complete; next job is `JOB-015`.
 
 ## One-job-at-a-time system
 
@@ -49,7 +49,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 11 | JOB-011 | Three textured cube bodies | JOB-010 | DONE — browser visual test confirms three visible cube bodies with six face materials each. |
 | 12 | JOB-012 | Face orientation mapping | JOB-011 | DONE — one-to-one six-face mapping tests pass and the browser debug view displays all directions and IDs. |
 | 13 | JOB-013 | Visual physics containment | JOB-011 | DONE — Rapier scene loads and browser inspection shows all three settled dice inside the bowl bounds. |
-| 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | Fake-clock test proves `ARMED` → `SHAKING` → `SETTLING` → `REVEALING`, with a fixed 2,000 ms tail and one retained outcome. |
+| 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | DONE — browser and fake-clock tests prove the shared lifecycle, fixed tail, retained outcome, and one result. |
 | 15 | JOB-015 | Button and pointer controls | JOB-014 | Browser test starts, holds, releases, and completes a roll using non-motion controls exactly once. |
 | 16 | JOB-016 | DeviceMotion adapter | JOB-015 | Sensor fixture test maps quiet/gentle/fast samples to bounded intensity; unavailable permission uses the fallback control. |
 | 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | Browser test confirms mute stops sound, repeated rounds do not stack loops, and unsupported vibration does not fail the round. |
@@ -222,6 +222,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: React Three Rapier loaded successfully; fixed floor/wall colliders contained all three dynamic dice; after 2 seconds of settling and opening the lid, browser inspection showed all three dice inside the bowl with no escape or stack outside the play area; type-check/build passed.
 - Remaining limitation: Physics is currently passive; shake impulses and lifecycle authority are added in JOB-014 and later.
 - Rollback note: Revert this job's commit to remove Rapier and containment colliders while preserving the mapped static dice scene.
+
+### JOB-014 — Authoritative roll lifecycle
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser test Start Shake → Stop Shake → wait 2,300 ms → inspect result
+- Result: `PASS`
+- Evidence: Browser entered `SHAKING`, then `SETTLING` with the locked-outcome message, and reached `RESULTS` after the two-second tail with one result and score display; shared reducer tests continue to pass and the browser uses the injected cryptographic sampler plus reducer for the lifecycle.
+- Remaining limitation: The current demo has one preselected local seat and no hold/tap/keyboard adapters; those are added in JOB-015.
+- Rollback note: Revert this job's commit to remove browser lifecycle wiring and shake impulses while preserving the pure reducer and static physics scene.
 
 ## Delivery order
 
