@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-019 DONE` — six-slot pack editor complete; next job is `JOB-020`.
+**Current status:** `JOB-020 DONE` — image validation and normalization complete; next job is `JOB-021`.
 
 ## One-job-at-a-time system
 
@@ -282,6 +282,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: The play screen renders a dedicated “Customize six symbols” editor with stable `s0`–`s5` labels, six independent image selectors, and square center-crop previews; the browser accessibility tree exposes all six slots and the existing game controls remain available.
 - Remaining limitation: The editor currently previews the selected image with CSS center/cover behavior; normalized image blobs, byte limits, metadata stripping, and corrupt-file rejection are JOB-020.
 - Rollback note: Revert this job's commit to remove the pack editor and its styles while preserving the playable dice scene and built-in symbol IDs.
+
+### JOB-020 — Image validation and normalization
+
+- Status: `DONE`
+- Commit: `b1909b8`
+- Functional test: `npm run typecheck --workspace @kla-khlok/shared`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`; web type-check/build; `npm run docs:check`
+- Result: `PASS`
+- Evidence: Shared image tests cover valid PNG metadata detection, immutable normalized byte copies, corrupt/empty input, the 10 MiB byte limit, 8,192-pixel dimension limits, 40-megapixel limits, and extension-independent content detection; 17 shared tests pass and web/docs gates pass.
+- Remaining limitation: Normalization currently validates and copies source bytes; browser canvas re-encoding to a 256×256 crop and propagating that texture to every render target is JOB-021.
+- Rollback note: Revert this job's commit to remove image inspection/normalization exports and tests while preserving the pack editor UI.
 
 ## Delivery order
 
