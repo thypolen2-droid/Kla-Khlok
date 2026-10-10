@@ -40,3 +40,10 @@ export {
   sampleSymbolIndexFromByteSource,
 } from "./random.js";
 export type { RandomByteSource, RandomIndexSource } from "./random.js";
+export {
+  DIE_FACE_DIRECTIONS,
+  DIE_FACE_SYMBOLS,
+  getFaceIndexForSymbol,
+  getSymbolForFaceIndex,
+} from "./faces.js";
+export type { DieFaceDirection } from "./faces.js";

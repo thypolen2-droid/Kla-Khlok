@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GAME_NAME, GAME_VERSION } from "@kla-khlok/shared";
+import { DIE_FACE_DIRECTIONS, DIE_FACE_SYMBOLS, GAME_NAME, GAME_VERSION } from "@kla-khlok/shared";
 import { DiceTableScene } from "./components/DiceTableScene";
 
 export function App() {
@@ -25,6 +25,11 @@ export function App() {
             : "The game foundation is ready for the shared rules and playable dice jobs."}
         </p>
         <DiceTableScene lidOpen={lidOpen} />
+        <ul className="face-map" aria-label="Die face mapping debug view">
+          {DIE_FACE_DIRECTIONS.map((direction, index) => (
+            <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>
+          ))}
+        </ul>
         <button type="button" onClick={() => setLidOpen((open) => !open)}>
           {lidOpen ? "Close lid" : "Open lid"}
         </button>

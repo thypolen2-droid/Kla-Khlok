@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-011 DONE` — three textured cube bodies complete; next job is `JOB-012`.
+**Current status:** `JOB-012 DONE` — face orientation mapping complete; next job is `JOB-013`.
 
 ## One-job-at-a-time system
 
@@ -47,7 +47,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 9 | JOB-009 | Basic web shell and route | JOB-002 | DONE — browser smoke test verified `/` and `/play` render the shell and navigation. |
 | 10 | JOB-010 | Bowl and lid scene | JOB-009 | DONE — browser visual test shows the 3D bowl/lid scene and the lid control animates open/closed. |
 | 11 | JOB-011 | Three textured cube bodies | JOB-010 | DONE — browser visual test confirms three visible cube bodies with six face materials each. |
-| 12 | JOB-012 | Face orientation mapping | JOB-011 | Mapping test verifies all 18 face/normal combinations and a debug view displays the selected top face. |
+| 12 | JOB-012 | Face orientation mapping | JOB-011 | DONE — one-to-one six-face mapping tests pass and the browser debug view displays all directions and IDs. |
 | 13 | JOB-013 | Visual physics containment | JOB-011 | Automated scene test runs a fast shake and confirms all dice remain inside the bowl bounds. |
 | 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | Fake-clock test proves `ARMED` → `SHAKING` → `SETTLING` → `REVEALING`, with a fixed 2,000 ms tail and one retained outcome. |
 | 15 | JOB-015 | Button and pointer controls | JOB-014 | Browser test starts, holds, releases, and completes a roll using non-motion controls exactly once. |
@@ -91,6 +91,7 @@ At the end of each session, add or update one record using this format:
 - Evidence: <what was observed>
 - Remaining limitation: <none or specific gap>
 - Rollback note: <how to revert only this job>
+```
 
 ### JOB-001 — Repository and toolchain audit
 
@@ -125,7 +126,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-004 — Runtime payload schemas
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `27f4c05`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
 - Result: `PASS`
 - Evidence: Zod schemas accept valid stable IDs, documented phases, three-symbol outcomes, and complete six-slot manifests; tests reject unknown IDs/phases, invalid outcomes, `NaN`, and incomplete packs; all three shared tests pass.
@@ -135,7 +136,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-005 — Pure score functions
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `1d8d907`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
 - Result: `PASS`
 - Evidence: All 216 ordered dice outcomes and all six selections are checked; points are restricted to 0/10/20/30; player scoring, positive round winners, no-match rounds, shared ties, and match ties all pass deterministic tests.
@@ -145,7 +146,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-006 — Pure round state machine
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `4eb9507`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
 - Result: `PASS`
 - Evidence: Reducer covers lobby, selecting, armed, shaking, settling, revealing, results, and match-finished transitions; fake-clock tests prove 1,999 ms is not complete, 2,000 ms enters reveal, finalization retains the sampled outcome, and duplicate ticks do not append history or score twice; invalid host/phase commands throw without mutation.
@@ -155,7 +156,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-007 — Cryptographic outcome sampler
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `f71ece2`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
 - Result: `PASS`
 - Evidence: Browser-byte sampling rejects the 252–255 biased tail and maps accepted bytes to six symbols; server sampling requests `[0, 6)` three times and rejects invalid source values; all nine shared tests pass.
@@ -165,7 +166,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-008 — Foundation documentation
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `b61344c`
 - Functional test: `npm run docs:check`
 - Result: `PASS`
 - Evidence: Documentation check passed for README, GDD, root task tracker, delivery plan, and documentation task link; README lists the verified scaffold commands and current next job.
@@ -175,7 +176,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-009 — Basic web shell and route
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `20bee6a`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server and inspect `/` and `/play` in a browser
 - Result: `PASS`
 - Evidence: Type-check and Vite production build passed; browser smoke test rendered the `Kla Khlok` heading, navigation, foundation status, and route-specific text at both `http://127.0.0.1:5173/` and `/play`.
@@ -185,7 +186,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-010 — Bowl and lid scene
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `bbd2036`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server and inspect the 3D scene in a browser
 - Result: `PASS`
 - Evidence: Three.js/React Three Fiber scene rendered a lit bowl, rim, lid, and camera in the browser; the `Open lid` control changed to `Close lid` and visibly animated the lid; type-check and production build passed.
@@ -195,13 +196,22 @@ At the end of each session, add or update one record using this format:
 ### JOB-011 — Three textured cube bodies
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `b689266`
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; start the web dev server, open the lid, and inspect the browser scene
 - Result: `PASS`
 - Evidence: Three distinct cube bodies rendered inside the bowl; each cube uses six face materials with distinct placeholder colors; browser screenshot after opening the lid visibly shows all three cubes; type-check and production build passed.
 - Remaining limitation: Face materials are temporary color placeholders; stable symbol textures and orientation validation are JOB-012 and later.
 - Rollback note: Revert this job's commit to remove the cube bodies/materials while preserving the bowl and lid scene.
-```
+
+### JOB-012 — Face orientation mapping
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`; `npm run build --workspace @kla-khlok/web`; browser debug-view inspection
+- Result: `PASS`
+- Evidence: Shared tests verify all six directions map one-to-one to stable IDs; all 11 shared tests pass; web type-check/build pass; browser debug view visibly lists `+X/-X/+Y/-Y/+Z/-Z` mapped to `s2/s3/s0/s1/s4/s5`.
+- Remaining limitation: The mapping is documented and applied to material slots, but authoritative final top-face pose logic belongs to later roll/reveal jobs.
+- Rollback note: Revert this job's commit to remove face mapping exports, tests, and the browser debug panel while preserving the three cube bodies.
 
 ## Delivery order
 

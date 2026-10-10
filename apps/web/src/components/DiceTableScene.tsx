@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { DIE_FACE_SYMBOLS } from "@kla-khlok/shared";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Vector2 } from "three";
 import type { Group } from "three";
@@ -55,14 +56,14 @@ function Lid({ open }: { readonly open: boolean }) {
   );
 }
 
-const dieFaceColors = ["#f3d6a0", "#d9793e", "#e8b451", "#b94e37", "#f1e5c8", "#8d3e2b"];
+const dieFaceColors = ["#e8b451", "#b94e37", "#f3d6a0", "#d9793e", "#f1e5c8", "#8d3e2b"];
 
 function Die({ position, rotation }: { readonly position: [number, number, number]; readonly rotation: [number, number, number] }) {
   return (
     <mesh castShadow position={position} rotation={rotation}>
       <boxGeometry args={[0.82, 0.82, 0.82]} />
       {dieFaceColors.map((color, index) => (
-        <meshStandardMaterial key={index} attach={`material-${index}`} color={color} roughness={0.48} />
+        <meshStandardMaterial key={DIE_FACE_SYMBOLS[index]} attach={`material-${index}`} color={color} roughness={0.48} />
       ))}
     </mesh>
   );
