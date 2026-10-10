@@ -95,7 +95,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-001 — Repository and toolchain audit
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `041fb3c`
 - Functional test: repository audit command inspecting files, manifests, rules, toolchain versions, Git state, and the full GDD
 - Result: `PASS`
 - Evidence: 1,190-line GDD read successfully; repository contains `KLA_KHLOK_GDD.md`, `README.md`, and `tasks.md`; no `AGENTS.md`, package manifests, app source, or runnable scripts exist; available toolchain includes Git 2.55.0, Node v24.19.0, npm 12.0.2, pnpm 11.25.0, and npx 12.0.2; Godot and Yarn are not installed; branch is clean on `main` and tracks `origin/main`.
@@ -105,7 +105,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-002 — Minimal monorepo scaffold
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `84b1a94`
 - Functional test: `npm install`; `npm run typecheck`; `npm run build`; `npm run test`; start both workspace development servers and request their local HTTP endpoints
 - Result: `PASS`
 - Evidence: npm installed 99 packages with 0 vulnerabilities; web and server development commands started successfully; web returned HTTP 200 with the expected `Kla Khlok` title; server returned HTTP 200 with `{"service":"Kla Khlok","version":"0.1.0","status":"ready"}`; type-check, production build, and shared smoke test all passed.
@@ -115,7 +115,7 @@ At the end of each session, add or update one record using this format:
 ### JOB-003 — Shared symbol and phase types
 
 - Status: `DONE`
-- Commit: `PENDING`
+- Commit: `aa7c457` plus cleanup commit removing stale failed-build artifacts
 - Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
 - Result: `PASS`
 - Evidence: `SymbolId` accepts only `s0`–`s5`; `RoundPhase` contains all nine documented phases; `DiceOutcome` requires three symbol IDs; compile-time `@ts-expect-error` checks reject invalid symbol and phase values; shared runtime smoke test passes.
