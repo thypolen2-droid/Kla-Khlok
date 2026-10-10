@@ -5,6 +5,7 @@ import {
   GAME_NAME,
   GAME_VERSION,
   MotionProcessor,
+  SYMBOL_IDS,
   createBrowserCryptoSampler,
   createInitialRoundState,
   reduceRound,
@@ -25,6 +26,7 @@ export function App() {
   const [motionStatus, setMotionStatus] = useState("Motion not enabled");
   const [motionIntensity, setMotionIntensity] = useState(0);
   const [muted, setMuted] = useState(false);
+  const [imageUrls, setImageUrls] = useState<Partial<Record<import("@kla-khlok/shared").SymbolId, string>>>({});
   const [round, setRound] = useState<RoundState>(() => {
     let initial = createInitialRoundState(["local"]);
     initial = reduceRound(initial, { type: "START_MATCH" }, dependencies);
@@ -92,6 +94,16 @@ export function App() {
       : current
   ));
   const nextRound = () => setRound((current) => reduceRound(current, { type: "NEXT" }, dependencies));
+  const symbolBoard = (
+    <div className="symbol-board" aria-label="Six symbol board">
+      {SYMBOL_IDS.map((symbolId) => (
+        <div className="symbol-card" key={symbolId}>
+          <span>{symbolId}</span>
+          <span className="symbol-card-image" style={imageUrls[symbolId] ? { backgroundImage: `url(${imageUrls[symbolId]})` } : undefined}>{imageUrls[symbolId] ? "" : symbolId}</span>
+        </div>
+      ))}
+    </div>
+  );
 
   const enableMotion = async () => {
     await audio.unlock();
@@ -153,13 +165,14 @@ export function App() {
           {isPlayRoute ? "One local demo seat is ready to test the authoritative roll lifecycle." : "The game foundation is ready for the shared rules and playable dice jobs."}
         </p>
         <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber} · Motion {Math.round(motionIntensity * 100)}%</p>
-        <DiceTableScene lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
+        <DiceTableScene imageUrls={imageUrls} lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
         <ul className="face-map" aria-label="Die face mapping debug view">
           {DIE_FACE_DIRECTIONS.map((direction, index) => (
             <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>
           ))}
         </ul>
-        <PackEditor />
+        {symbolBoard}
+        <PackEditor onSlotImageChange={(slotId, previewUrl) => setImageUrls((current) => ({ ...current, [slotId]: previewUrl }))} />
         {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Tap to Start</button>}
         {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
         {!motionEnabled && <button type="button" onClick={enableMotion}>Enable Motion</button>}

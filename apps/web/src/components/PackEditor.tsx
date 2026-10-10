@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import type { SymbolId } from "@kla-khlok/shared";
+
 interface SymbolSlot {
   readonly id: string;
   readonly label: string;
@@ -18,7 +20,11 @@ const defaultSlots: readonly SymbolSlot[] = ["s0", "s1", "s2", "s3", "s4", "s5"]
   previewUrl: null,
 }));
 
-export function PackEditor() {
+interface PackEditorProps {
+  readonly onSlotImageChange?: (slotId: SymbolId, previewUrl: string) => void;
+}
+
+export function PackEditor({ onSlotImageChange }: PackEditorProps) {
   const [slots, setSlots] = useState<readonly SymbolSlot[]>(defaultSlots);
   const [pending, setPending] = useState<PendingImage | null>(null);
   const ownedUrls = useRef<Set<string>>(new Set());
@@ -53,6 +59,7 @@ export function PackEditor() {
       }
       return { ...slot, previewUrl: pending.previewUrl };
     }));
+    onSlotImageChange?.(pending.slotId as SymbolId, pending.previewUrl);
     setPending(null);
   };
 

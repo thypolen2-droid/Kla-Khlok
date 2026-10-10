@@ -1,16 +1,47 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DIE_FACE_SYMBOLS } from "@kla-khlok/shared";
-import type { DiceOutcome } from "@kla-khlok/shared";
+import type { DiceOutcome, SymbolId } from "@kla-khlok/shared";
 import { RigidBodyType } from "@dimforge/rapier3d-compat";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 import type { RapierRigidBody } from "@react-three/rapier";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Vector2 } from "three";
+import { TextureLoader, Vector2 } from "three";
+import type { Texture } from "three";
 import type { Group } from "three";
 
 interface DiceTableSceneProps {
   readonly lidOpen: boolean;
   readonly revealOutcome?: DiceOutcome | null;
+  readonly imageUrls?: Readonly<Partial<Record<SymbolId, string>>>;
+}
+
+function useTextures(imageUrls: Readonly<Partial<Record<SymbolId, string>>>) {
+  const [textures, setTextures] = useState<ReadonlyMap<string, Texture>>(new Map());
+  const key = useMemo(() => Object.entries(imageUrls).filter((entry): entry is [string, string] => Boolean(entry[1])).sort().map(([id, url]) => `${id}:${url}`).join("|"), [imageUrls]);
+
+  useEffect(() => {
+    const loader = new TextureLoader();
+    const loaded = new Map<string, Texture>();
+    let cancelled = false;
+    for (const [symbolId, url] of Object.entries(imageUrls)) {
+      if (!url) continue;
+      loader.load(url, (texture) => {
+        if (cancelled) {
+          texture.dispose();
+          return;
+        }
+        texture.colorSpace = "srgb";
+        loaded.set(symbolId, texture);
+        setTextures(new Map(loaded));
+      });
+    }
+    return () => {
+      cancelled = true;
+      for (const texture of loaded.values()) texture.dispose();
+    };
+  }, [imageUrls, key]);
+
+  return textures;
 }
 
 function Bowl() {
@@ -67,7 +98,7 @@ function Lid({ open }: { readonly open: boolean }) {
 
 const dieFaceColors = ["#e8b451", "#b94e37", "#f3d6a0", "#d9793e", "#f1e5c8", "#8d3e2b"];
 
-function Die({ position, rotation, shaking, frozen }: { readonly position: [number, number, number]; readonly rotation: [number, number, number]; readonly shaking: boolean; readonly frozen: boolean }) {
+function Die({ position, rotation, shaking, frozen, textures }: { readonly position: [number, number, number]; readonly rotation: [number, number, number]; readonly shaking: boolean; readonly frozen: boolean; readonly textures: ReadonlyMap<string, Texture> }) {
   const body = useRef<RapierRigidBody>(null);
 
   useEffect(() => {
@@ -98,20 +129,22 @@ function Die({ position, rotation, shaking, frozen }: { readonly position: [numb
     <RigidBody ref={body} colliders="cuboid" position={position} rotation={rotation} restitution={0.45} friction={0.75}>
       <mesh castShadow>
         <boxGeometry args={[0.82, 0.82, 0.82]} />
-        {dieFaceColors.map((color, index) => (
-          <meshStandardMaterial key={DIE_FACE_SYMBOLS[index]} attach={`material-${index}`} color={color} roughness={0.48} />
-        ))}
+        {dieFaceColors.map((color, index) => {
+          const symbolId = DIE_FACE_SYMBOLS[index];
+          if (!symbolId) return null;
+          return <meshStandardMaterial key={symbolId} attach={`material-${index}`} color={color} map={textures.get(symbolId) ?? null} roughness={0.48} />;
+        })}
       </mesh>
     </RigidBody>
   );
 }
 
-function Dice({ shaking, frozen }: { readonly shaking: boolean; readonly frozen: boolean }) {
+function Dice({ shaking, frozen, textures }: { readonly shaking: boolean; readonly frozen: boolean; readonly textures: ReadonlyMap<string, Texture> }) {
   return (
     <group aria-label="Three dice">
-      <Die frozen={frozen} shaking={shaking} position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
-      <Die frozen={frozen} shaking={shaking} position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
-      <Die frozen={frozen} shaking={shaking} position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
+      <Die frozen={frozen} shaking={shaking} textures={textures} position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
+      <Die frozen={frozen} shaking={shaking} textures={textures} position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
+      <Die frozen={frozen} shaking={shaking} textures={textures} position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
     </group>
   );
 }
@@ -128,7 +161,8 @@ function ContainmentColliders() {
   );
 }
 
-function Table({ lidOpen, shaking, frozen }: DiceTableSceneProps & { readonly shaking: boolean; readonly frozen: boolean }) {
+function Table({ lidOpen, shaking, frozen, imageUrls }: DiceTableSceneProps & { readonly shaking: boolean; readonly frozen: boolean }) {
+  const textures = useTextures(imageUrls ?? {});
   return (
     <>
       <color attach="background" args={["#35180f"]} />
@@ -136,7 +170,7 @@ function Table({ lidOpen, shaking, frozen }: DiceTableSceneProps & { readonly sh
       <directionalLight castShadow intensity={2.5} position={[4, 7, 5]} shadow-mapSize={[1024, 1024]} />
       <pointLight intensity={18} distance={12} color="#e49a58" position={[-4, 3, 2]} />
       <Bowl />
-      <Dice frozen={frozen} shaking={shaking} />
+      <Dice frozen={frozen} shaking={shaking} textures={textures} />
       <ContainmentColliders />
       <Lid open={lidOpen} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.42, 0]} receiveShadow>
@@ -147,7 +181,7 @@ function Table({ lidOpen, shaking, frozen }: DiceTableSceneProps & { readonly sh
   );
 }
 
-export function DiceTableScene({ lidOpen, revealOutcome = null, shaking = false }: DiceTableSceneProps & { readonly shaking?: boolean }) {
+export function DiceTableScene({ lidOpen, revealOutcome = null, shaking = false, imageUrls = {} }: DiceTableSceneProps & { readonly shaking?: boolean }) {
   return (
     <div className="scene-frame" aria-label="3D Kla Khlok bowl and lid scene">
       <Canvas
@@ -156,7 +190,7 @@ export function DiceTableScene({ lidOpen, revealOutcome = null, shaking = false 
         fallback={<div className="scene-fallback">3D graphics unavailable. Use the readable 2D result below.</div>}
       >
         <Physics gravity={[0, -9.81, 0]}>
-          <Table frozen={Boolean(revealOutcome)} lidOpen={lidOpen} shaking={shaking} />
+          <Table frozen={Boolean(revealOutcome)} imageUrls={imageUrls} lidOpen={lidOpen} shaking={shaking} />
         </Physics>
       </Canvas>
       {revealOutcome && (
