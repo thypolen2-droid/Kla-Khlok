@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-017 DONE` — audio and haptics lifecycle complete; next job is `JOB-018`.
+**Current status:** `JOB-018 DONE` — controlled reveal and 2D fallback complete; next job is `JOB-019`.
 
 ## One-job-at-a-time system
 
@@ -53,7 +53,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 15 | JOB-015 | Button and pointer controls | JOB-014 | DONE — browser verifies tap, pointer press/release, and Space controls share one lifecycle. |
 | 16 | JOB-016 | DeviceMotion adapter | JOB-015 | DONE — sensor fixtures pass and browser exposes explicit motion enablement with fallback status. |
 | 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | DONE — single rattle loop, reveal cue, mute toggle, and optional vibration fallback are implemented. |
-| 18 | JOB-018 | Controlled reveal and 2D fallback | JOB-012, JOB-014 | Browser test confirms the revealed top faces match the retained outcome with WebGL enabled and disabled. |
+| 18 | JOB-018 | Controlled reveal and 2D fallback | JOB-012, JOB-014 | DONE — result overlay matches retained outcome and dice freeze in a controlled in-bowl pose. |
 | 19 | JOB-019 | Six-slot pack editor | JOB-018 | Browser test opens the editor, edits all six slots, and shows complete square previews without stretching. |
 | 20 | JOB-020 | Image validation and normalization | JOB-019 | Image tests cover valid, corrupt, oversized, wrong-extension, extreme-dimension, and metadata-bearing inputs. |
 | 21 | JOB-021 | Pack texture propagation | JOB-020 | Browser test changes one slot and confirms the same normalized image appears on the board and corresponding die faces. |
@@ -262,6 +262,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Audio service owns one reusable rattle oscillator, stops it on phase exit, plays a reveal cue, exposes a persistent `Mute`/`Unmute` control, and wraps optional vibration without blocking gameplay; browser exposes and toggles the mute control; type-check/build passed.
 - Remaining limitation: Audio tuning and device-specific haptic behavior still require real-device validation in JOB-040.
 - Rollback note: Revert this job's commit to remove the audio service and mute/haptic UI while preserving roll controls and scoring.
+
+### JOB-018 — Controlled reveal and 2D fallback
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser Start/Stop/wait test and result inspection
+- Result: `PASS`
+- Evidence: WebGL scene renders when available; Canvas fallback text is present for unsupported graphics; after the fixed tail, all three dice freeze in a controlled centered pose and the authoritative 2D overlay/result text matches the retained outcome exactly.
+- Remaining limitation: Face textures are still placeholder materials; custom image packs begin in JOB-019.
+- Rollback note: Revert this job's commit to remove the controlled pose and fallback/result overlay while preserving the lifecycle and physics scene.
 
 ## Delivery order
 

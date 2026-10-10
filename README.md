@@ -10,7 +10,7 @@ This repository currently contains the product specification and implementation 
 - Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
 - Delivery plan: [`docs/PLAN.md`](docs/PLAN.md)
 - Documentation task link: [`docs/TASKS.md`](docs/TASKS.md)
-- Current milestone: JOB-018 — Controlled reveal and 2D fallback
+- Current milestone: JOB-019 — Six-slot pack editor
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.

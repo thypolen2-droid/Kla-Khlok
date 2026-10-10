@@ -152,7 +152,7 @@ export function App() {
           {isPlayRoute ? "One local demo seat is ready to test the authoritative roll lifecycle." : "The game foundation is ready for the shared rules and playable dice jobs."}
         </p>
         <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber} · Motion {Math.round(motionIntensity * 100)}%</p>
-        <DiceTableScene lidOpen={lidOpen} shaking={round.phase === "SHAKING"} />
+        <DiceTableScene lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
         <ul className="face-map" aria-label="Die face mapping debug view">
           {DIE_FACE_DIRECTIONS.map((direction, index) => (
             <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>

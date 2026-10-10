@@ -1,5 +1,7 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { DIE_FACE_SYMBOLS } from "@kla-khlok/shared";
+import type { DiceOutcome } from "@kla-khlok/shared";
+import { RigidBodyType } from "@dimforge/rapier3d-compat";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 import type { RapierRigidBody } from "@react-three/rapier";
 import { Canvas, useFrame } from "@react-three/fiber";
@@ -8,6 +10,7 @@ import type { Group } from "three";
 
 interface DiceTableSceneProps {
   readonly lidOpen: boolean;
+  readonly revealOutcome?: DiceOutcome | null;
 }
 
 function Bowl() {
@@ -64,8 +67,19 @@ function Lid({ open }: { readonly open: boolean }) {
 
 const dieFaceColors = ["#e8b451", "#b94e37", "#f3d6a0", "#d9793e", "#f1e5c8", "#8d3e2b"];
 
-function Die({ position, rotation, shaking }: { readonly position: [number, number, number]; readonly rotation: [number, number, number]; readonly shaking: boolean }) {
+function Die({ position, rotation, shaking, frozen }: { readonly position: [number, number, number]; readonly rotation: [number, number, number]; readonly shaking: boolean; readonly frozen: boolean }) {
   const body = useRef<RapierRigidBody>(null);
+
+  useEffect(() => {
+    if (!body.current) return;
+    if (frozen) {
+      body.current.setBodyType(RigidBodyType.KinematicPositionBased, true);
+      body.current.setTranslation({ x: position[0], y: 0.35, z: position[2] }, true);
+      body.current.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
+    } else {
+      body.current.setBodyType(RigidBodyType.Dynamic, true);
+    }
+  }, [frozen, position]);
 
   useFrame((state) => {
     if (!shaking || !body.current) return;
@@ -92,12 +106,12 @@ function Die({ position, rotation, shaking }: { readonly position: [number, numb
   );
 }
 
-function Dice({ shaking }: { readonly shaking: boolean }) {
+function Dice({ shaking, frozen }: { readonly shaking: boolean; readonly frozen: boolean }) {
   return (
     <group aria-label="Three dice">
-      <Die shaking={shaking} position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
-      <Die shaking={shaking} position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
-      <Die shaking={shaking} position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
+      <Die frozen={frozen} shaking={shaking} position={[-0.95, 0.25, 0]} rotation={[0.24, 0.36, 0.1]} />
+      <Die frozen={frozen} shaking={shaking} position={[0, 0.28, -0.2]} rotation={[-0.18, 0.62, -0.16]} />
+      <Die frozen={frozen} shaking={shaking} position={[0.95, 0.24, 0.06]} rotation={[0.14, -0.48, 0.2]} />
     </group>
   );
 }
@@ -114,7 +128,7 @@ function ContainmentColliders() {
   );
 }
 
-function Table({ lidOpen, shaking }: DiceTableSceneProps & { readonly shaking: boolean }) {
+function Table({ lidOpen, shaking, frozen }: DiceTableSceneProps & { readonly shaking: boolean; readonly frozen: boolean }) {
   return (
     <>
       <color attach="background" args={["#35180f"]} />
@@ -122,7 +136,7 @@ function Table({ lidOpen, shaking }: DiceTableSceneProps & { readonly shaking: b
       <directionalLight castShadow intensity={2.5} position={[4, 7, 5]} shadow-mapSize={[1024, 1024]} />
       <pointLight intensity={18} distance={12} color="#e49a58" position={[-4, 3, 2]} />
       <Bowl />
-      <Dice shaking={shaking} />
+      <Dice frozen={frozen} shaking={shaking} />
       <ContainmentColliders />
       <Lid open={lidOpen} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.42, 0]} receiveShadow>
@@ -133,14 +147,24 @@ function Table({ lidOpen, shaking }: DiceTableSceneProps & { readonly shaking: b
   );
 }
 
-export function DiceTableScene({ lidOpen, shaking = false }: DiceTableSceneProps & { readonly shaking?: boolean }) {
+export function DiceTableScene({ lidOpen, revealOutcome = null, shaking = false }: DiceTableSceneProps & { readonly shaking?: boolean }) {
   return (
     <div className="scene-frame" aria-label="3D Kla Khlok bowl and lid scene">
-      <Canvas shadows camera={{ position: [0, 4.1, 6.8], fov: 42 }}>
+      <Canvas
+        shadows
+        camera={{ position: [0, 4.1, 6.8], fov: 42 }}
+        fallback={<div className="scene-fallback">3D graphics unavailable. Use the readable 2D result below.</div>}
+      >
         <Physics gravity={[0, -9.81, 0]}>
-          <Table lidOpen={lidOpen} shaking={shaking} />
+          <Table frozen={Boolean(revealOutcome)} lidOpen={lidOpen} shaking={shaking} />
         </Physics>
       </Canvas>
+      {revealOutcome && (
+        <div className="result-overlay" aria-label="Authoritative 2D result fallback">
+          <span>Result</span>
+          {revealOutcome.map((symbolId, index) => <strong key={`${symbolId}-${index}`}>{symbolId}</strong>)}
+        </div>
+      )}
     </div>
   );
 }

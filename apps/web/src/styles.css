@@ -37,11 +37,39 @@ h1 { margin: 0; font-size: clamp(2.4rem, 10vw, 5rem); line-height: 0.95; }
 .phase-status, .result-status { color: #e8b36b; font-weight: 700; }
 
 .scene-frame {
+  position: relative;
   height: clamp(220px, 42vw, 340px);
   margin: 28px 0 20px;
   overflow: hidden;
   border: 1px solid rgba(247, 234, 215, 0.22);
   border-radius: 14px;
+}
+
+.scene-fallback, .result-overlay {
+  position: absolute;
+  inset: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(44, 23, 16, 0.92);
+  color: #f2ddc2;
+  text-align: center;
+}
+
+.result-overlay {
+  inset: auto 12px 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(44, 23, 16, 0.86);
+}
+
+.result-overlay strong {
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #2c1710;
+  background: #e8b36b;
 }
 
 button {
