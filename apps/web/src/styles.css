@@ -1,0 +1,33 @@
+:root {
+  color: #f7ead7;
+  background: #2c1710;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; min-width: 320px; }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at top, #8b4b2c, #2c1710 70%);
+}
+
+.welcome-card {
+  width: min(100%, 560px);
+  padding: clamp(28px, 8vw, 64px);
+  border: 1px solid rgba(247, 234, 215, 0.28);
+  border-radius: 20px;
+  background: rgba(48, 22, 14, 0.78);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+}
+
+.eyebrow { margin: 0 0 16px; color: #e8b36b; letter-spacing: 0.08em; }
+h1 { margin: 0; font-size: clamp(2.4rem, 10vw, 5rem); line-height: 0.95; }
+.status { color: #e8b36b; font-weight: 700; }
+.description { max-width: 38ch; color: #f2ddc2; line-height: 1.6; }

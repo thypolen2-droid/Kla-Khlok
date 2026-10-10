@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-001 DONE` — audit complete; next job is `JOB-002`.
+**Current status:** `JOB-002 DONE` — scaffold complete; next job is `JOB-003`.
 
 ## One-job-at-a-time system
 
@@ -37,7 +37,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | Order | Job ID | Single deliverable | Depends on | Functional test before `DONE` |
 | ---: | --- | --- | --- | --- |
 | 1 | JOB-001 | Repository and toolchain audit | GDD | DONE — audit recorded below; repository contains only GDD/README/tasks, no app manifests or scripts. |
-| 2 | JOB-002 | Minimal monorepo scaffold | JOB-001 | Install, development, and build commands complete for the empty web/server/shared packages. |
+| 2 | JOB-002 | Minimal monorepo scaffold | JOB-001 | DONE — install, development, type-check, build, and shared smoke test evidence recorded below. |
 | 3 | JOB-003 | Shared symbol and phase types | JOB-002 | Type-check rejects an invalid symbol ID and accepts all six stable IDs and all documented phases. |
 | 4 | JOB-004 | Runtime payload schemas | JOB-003 | Schema tests reject malformed IDs, NaN, unknown phases, and incomplete packs. |
 | 5 | JOB-005 | Pure score functions | JOB-003 | Deterministic tests cover all 216 outcomes, six selections, 0/10/20/30 points, ties, and no-match rounds. |
@@ -101,6 +101,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: 1,190-line GDD read successfully; repository contains `KLA_KHLOK_GDD.md`, `README.md`, and `tasks.md`; no `AGENTS.md`, package manifests, app source, or runnable scripts exist; available toolchain includes Git 2.55.0, Node v24.19.0, npm 12.0.2, pnpm 11.25.0, and npx 12.0.2; Godot and Yarn are not installed; branch is clean on `main` and tracks `origin/main`.
 - Remaining limitation: No application scaffold or install/build/test command exists yet.
 - Rollback note: Revert the commit that adds this audit record only; no application files were changed.
+
+### JOB-002 — Minimal monorepo scaffold
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm install`; `npm run typecheck`; `npm run build`; `npm run test`; start both workspace development servers and request their local HTTP endpoints
+- Result: `PASS`
+- Evidence: npm installed 99 packages with 0 vulnerabilities; web and server development commands started successfully; web returned HTTP 200 with the expected `Kla Khlok` title; server returned HTTP 200 with `{"service":"Kla Khlok","version":"0.1.0","status":"ready"}`; type-check, production build, and shared smoke test all passed.
+- Remaining limitation: The scaffold has no gameplay rules, dice scene, image system, or online room behavior yet.
+- Rollback note: Revert this job's commit to remove the scaffold, package lock, and workspace setup without touching the documentation commits.
 ```
 
 ## Delivery order
