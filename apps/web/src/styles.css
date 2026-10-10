@@ -101,6 +101,50 @@ button {
   margin: 0.8rem 0 1rem;
 }
 
+.seat-panel {
+  margin: 1rem 0;
+  padding: 0.8rem;
+  border: 1px solid #70402c;
+  border-radius: 0.6rem;
+}
+
+.seat-panel-heading,
+.seat-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.seat-panel h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.seat-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.seat-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  border-radius: 0.45rem;
+  background: #3e1d14;
+}
+
+.seat-symbols {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.25rem;
+}
+
+.seat-symbols button[aria-pressed="true"] {
+  outline: 2px solid #e4a054;
+  background: #7b351f;
+}
+
 .symbol-card {
   display: grid;
   gap: 0.25rem;

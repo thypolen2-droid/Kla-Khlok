@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DIE_FACE_DIRECTIONS,
   DIE_FACE_SYMBOLS,
@@ -27,6 +27,8 @@ export function App() {
   const [motionIntensity, setMotionIntensity] = useState(0);
   const [muted, setMuted] = useState(false);
   const [imageUrls, setImageUrls] = useState<Partial<Record<import("@kla-khlok/shared").SymbolId, string>>>({});
+  const [seatMessage, setSeatMessage] = useState("One local seat is ready.");
+  const seatCounter = useRef(1);
   const [round, setRound] = useState<RoundState>(() => {
     let initial = createInitialRoundState(["local"]);
     initial = reduceRound(initial, { type: "START_MATCH" }, dependencies);
@@ -94,6 +96,34 @@ export function App() {
       : current
   ));
   const nextRound = () => setRound((current) => reduceRound(current, { type: "NEXT" }, dependencies));
+  const resetSeats = (playerIds: readonly string[]) => {
+    let next = createInitialRoundState(playerIds);
+    next = reduceRound(next, { type: "START_MATCH" }, dependencies);
+    setRound(next);
+  };
+  const addSeat = () => {
+    if (round.phase !== "SELECTING" || round.players.length >= 8) return;
+    seatCounter.current += 1;
+    resetSeats([...round.players.map((player) => player.playerId), `player-${seatCounter.current}`]);
+    setSeatMessage("New seat added. Each seat must pick a symbol and confirm ready.");
+  };
+  const removeSeat = () => {
+    if (round.phase !== "SELECTING" || round.players.length <= 1) return;
+    resetSeats(round.players.slice(0, -1).map((player) => player.playerId));
+    setSeatMessage("Last seat removed and selections reset for the remaining seats.");
+  };
+  const chooseSeatSymbol = (playerId: string, symbolId: import("@kla-khlok/shared").SymbolId) => {
+    setRound((current) => {
+      try { return reduceRound(current, { type: "SET_SELECTION", playerId, selection: symbolId }, dependencies); }
+      catch { return current; }
+    });
+  };
+  const confirmSeat = (playerId: string) => {
+    setRound((current) => {
+      try { return reduceRound(current, { type: "READY", playerId }, dependencies); }
+      catch { return current; }
+    });
+  };
   const symbolBoard = (
     <div className="symbol-board" aria-label="Six symbol board">
       {SYMBOL_IDS.map((symbolId) => (
@@ -166,6 +196,29 @@ export function App() {
         </p>
         <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber} · Motion {Math.round(motionIntensity * 100)}%</p>
         <DiceTableScene imageUrls={imageUrls} lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
+        <section className="seat-panel" aria-labelledby="seat-panel-title">
+          <div className="seat-panel-heading">
+            <h2 id="seat-panel-title">Local seats</h2>
+            <span>{round.players.length}/8</span>
+          </div>
+          <p className="editor-help">Pass the device around: every seat chooses one symbol, then confirms ready.</p>
+          <p className="storage-status" aria-live="polite">{seatMessage}</p>
+          <div className="seat-list">
+            {round.players.map((player, index) => (
+              <div className="seat-card" key={player.playerId}>
+                <strong>{index === 0 ? "Host" : `Seat ${index + 1}`}</strong>
+                <span>{player.ready ? `Ready · ${player.selection}` : "Pick a symbol"}</span>
+                <div className="seat-symbols">
+                  {SYMBOL_IDS.map((symbolId) => (
+                    <button key={symbolId} type="button" disabled={round.phase !== "SELECTING" || player.ready} aria-pressed={player.selection === symbolId} onClick={() => chooseSeatSymbol(player.playerId, symbolId)}>{symbolId}</button>
+                  ))}
+                </div>
+                <button type="button" disabled={round.phase !== "SELECTING" || player.ready || !player.selection} onClick={() => confirmSeat(player.playerId)}>Confirm ready</button>
+              </div>
+            ))}
+          </div>
+          {round.phase === "SELECTING" && <div className="seat-actions"><button type="button" disabled={round.players.length >= 8} onClick={addSeat}>Add seat</button><button type="button" disabled={round.players.length <= 1} onClick={removeSeat}>Remove seat</button></div>}
+        </section>
         <ul className="face-map" aria-label="Die face mapping debug view">
           {DIE_FACE_DIRECTIONS.map((direction, index) => (
             <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>
@@ -173,7 +226,7 @@ export function App() {
         </ul>
         {symbolBoard}
         <PackEditor onSlotImageChange={(slotId, previewUrl) => setImageUrls((current) => ({ ...current, [slotId]: previewUrl }))} />
-        {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Tap to Start</button>}
+        {round.phase === "SELECTING" && <button type="button" disabled={round.players.some((player) => !player.selection || !player.ready)} onClick={startRoll}>Tap to Start</button>}
         {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
         {!motionEnabled && <button type="button" onClick={enableMotion}>Enable Motion</button>}
         <button type="button" onClick={() => setMuted((current) => !current)}>{muted ? "Unmute" : "Mute"}</button>
