@@ -38,6 +38,12 @@ const server = createServer(async (request, response) => {
     }
     const roomMatch = url.pathname.match(/^\/rooms\/([^/]+)$/);
     if (request.method === "GET" && roomMatch) { send(response, 200, { snapshot: rooms.getRoom(roomMatch[1]) }); return; }
+    const commandMatch = url.pathname.match(/^\/rooms\/([^/]+)\/commands$/);
+    if (request.method === "POST" && commandMatch) {
+      const body = await readBody(request);
+      send(response, 200, rooms.applyCommand(commandMatch[1], body.credential, body.commandId, body.command));
+      return;
+    }
     send(response, 404, { error: "Not found" });
   } catch (error) {
     if (error instanceof RoomError) { send(response, error.statusCode, { error: error.message }); return; }

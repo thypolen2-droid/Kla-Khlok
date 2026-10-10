@@ -20,3 +20,13 @@ test("invalid rejoin credentials are rejected while valid credentials return the
   assert.equal(rejoined.snapshot.players.length, 1);
   assert.equal(rejoined.snapshot.players[0].name, "Host");
 });
+
+test("retrying a command ID returns the original snapshot without applying twice", () => {
+  const manager = new RoomManager();
+  const created = manager.createRoom("Host");
+  const first = manager.applyCommand(created.snapshot.roomId, created.credential, "cmd-1", { type: "player:rename", name: "Renamed" });
+  const retry = manager.applyCommand(created.snapshot.roomId, created.credential, "cmd-1", { type: "player:rename", name: "Changed twice" });
+  assert.deepEqual(retry, first);
+  assert.equal(manager.getRoom(created.snapshot.roomId).roomVersion, 2);
+  assert.equal(manager.getRoom(created.snapshot.roomId).players[0].name, "Renamed");
+});
