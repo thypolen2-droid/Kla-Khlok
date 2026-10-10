@@ -13,3 +13,10 @@ export {
   SymbolPackManifestSchema,
   SymbolSlotSchema,
 } from "./schemas.js";
+export {
+  calculatePlayerPoints,
+  calculateRoundPoints,
+  countMatches,
+  getMatchWinnerIds,
+  getRoundWinnerIds,
+} from "./scoring.js";

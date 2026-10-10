@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-004 DONE` — runtime schemas complete; next job is `JOB-005`.
+**Current status:** `JOB-005 DONE` — pure scoring complete; next job is `JOB-006`.
 
 ## One-job-at-a-time system
 
@@ -40,7 +40,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 2 | JOB-002 | Minimal monorepo scaffold | JOB-001 | DONE — install, development, type-check, build, and shared smoke test evidence recorded below. |
 | 3 | JOB-003 | Shared symbol and phase types | JOB-002 | DONE — stable IDs, phases, dice outcome type, compile-time rejection checks, and runtime smoke test pass. |
 | 4 | JOB-004 | Runtime payload schemas | JOB-003 | DONE — Zod schemas and rejection tests pass for malformed IDs, NaN, unknown phases, and incomplete packs. |
-| 5 | JOB-005 | Pure score functions | JOB-003 | Deterministic tests cover all 216 outcomes, six selections, 0/10/20/30 points, ties, and no-match rounds. |
+| 5 | JOB-005 | Pure score functions | JOB-003 | DONE — exhaustive 216-outcome/six-selection tests and deterministic tie/no-match tests pass. |
 | 6 | JOB-006 | Pure round state machine | JOB-004, JOB-005 | Fake-clock reducer test completes one valid round and rejects invalid phase/role commands without side effects. |
 | 7 | JOB-007 | Cryptographic outcome sampler | JOB-006 | Sampler tests return exactly three IDs in range and exercise rejection boundaries without modulo bias. |
 | 8 | JOB-008 | Foundation documentation | JOB-002 | README commands work, and the documentation link/check test finds the required tracker and GDD. |
@@ -131,6 +131,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Zod schemas accept valid stable IDs, documented phases, three-symbol outcomes, and complete six-slot manifests; tests reject unknown IDs/phases, invalid outcomes, `NaN`, and incomplete packs; all three shared tests pass.
 - Remaining limitation: Schemas cover the current shared foundation only; full command/event protocol schemas belong to later online-room jobs.
 - Rollback note: Revert this job's commit to remove Zod and runtime schema additions while preserving the type-only contracts from JOB-003.
+
+### JOB-005 — Pure score functions
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
+- Result: `PASS`
+- Evidence: All 216 ordered dice outcomes and all six selections are checked; points are restricted to 0/10/20/30; player scoring, positive round winners, no-match rounds, shared ties, and match ties all pass deterministic tests.
+- Remaining limitation: Scores are pure calculations only; round lifecycle and exactly-once finalization are the next state-machine job (`JOB-006`).
+- Rollback note: Revert this job's commit to remove scoring functions/tests while preserving schemas and type contracts.
 ```
 
 ## Delivery order
