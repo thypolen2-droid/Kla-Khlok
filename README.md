@@ -8,7 +8,7 @@ This repository currently contains the product specification and implementation 
 
 - Product specification: [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md)
 - Implementation backlog and one-job-at-a-time session queue: [`tasks.md`](tasks.md)
-- Current milestone: JOB-003 — Shared symbol and phase types
+- Current milestone: JOB-004 — Runtime payload schemas
 - Planned stack: React, TypeScript, Vite, Three.js, React Three Fiber, Rapier, IndexedDB, Node.js, Socket.IO, and shared runtime schemas
 
 The task tracker is deliberately evidence-based. Features are not marked complete until the required tests, device checks, or acceptance evidence exist.

@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-002 DONE` — scaffold complete; next job is `JOB-003`.
+**Current status:** `JOB-003 DONE` — shared symbol and phase types complete; next job is `JOB-004`.
 
 ## One-job-at-a-time system
 
@@ -38,7 +38,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | ---: | --- | --- | --- | --- |
 | 1 | JOB-001 | Repository and toolchain audit | GDD | DONE — audit recorded below; repository contains only GDD/README/tasks, no app manifests or scripts. |
 | 2 | JOB-002 | Minimal monorepo scaffold | JOB-001 | DONE — install, development, type-check, build, and shared smoke test evidence recorded below. |
-| 3 | JOB-003 | Shared symbol and phase types | JOB-002 | Type-check rejects an invalid symbol ID and accepts all six stable IDs and all documented phases. |
+| 3 | JOB-003 | Shared symbol and phase types | JOB-002 | DONE — stable IDs, phases, dice outcome type, compile-time rejection checks, and runtime smoke test pass. |
 | 4 | JOB-004 | Runtime payload schemas | JOB-003 | Schema tests reject malformed IDs, NaN, unknown phases, and incomplete packs. |
 | 5 | JOB-005 | Pure score functions | JOB-003 | Deterministic tests cover all 216 outcomes, six selections, 0/10/20/30 points, ties, and no-match rounds. |
 | 6 | JOB-006 | Pure round state machine | JOB-004, JOB-005 | Fake-clock reducer test completes one valid round and rejects invalid phase/role commands without side effects. |
@@ -111,6 +111,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: npm installed 99 packages with 0 vulnerabilities; web and server development commands started successfully; web returned HTTP 200 with the expected `Kla Khlok` title; server returned HTTP 200 with `{"service":"Kla Khlok","version":"0.1.0","status":"ready"}`; type-check, production build, and shared smoke test all passed.
 - Remaining limitation: The scaffold has no gameplay rules, dice scene, image system, or online room behavior yet.
 - Rollback note: Revert this job's commit to remove the scaffold, package lock, and workspace setup without touching the documentation commits.
+
+### JOB-003 — Shared symbol and phase types
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/shared`; `npm run test --workspace @kla-khlok/shared`
+- Result: `PASS`
+- Evidence: `SymbolId` accepts only `s0`–`s5`; `RoundPhase` contains all nine documented phases; `DiceOutcome` requires three symbol IDs; compile-time `@ts-expect-error` checks reject invalid symbol and phase values; shared runtime smoke test passes.
+- Remaining limitation: Runtime payload validation is the next job (`JOB-004`); these types do not validate external data at runtime yet.
+- Rollback note: Revert this job's commit to remove the shared type additions while preserving the JOB-002 scaffold.
 ```
 
 ## Delivery order
