@@ -33,12 +33,40 @@ export function App() {
 
   const lidOpen = round.phase === "SELECTING" || round.phase === "RESULTS";
   const startRoll = () => {
-    let next = reduceRound(round, { type: "ARM", actorId: "local" }, dependencies);
-    next = reduceRound(next, { type: "SHAKE_START", actorId: "local" }, dependencies);
-    setRound(next);
+    setRound((current) => {
+      if (current.phase !== "SELECTING") return current;
+      let next = reduceRound(current, { type: "ARM", actorId: "local" }, dependencies);
+      next = reduceRound(next, { type: "SHAKE_START", actorId: "local" }, dependencies);
+      return next;
+    });
   };
-  const stopRoll = () => setRound((current) => reduceRound(current, { type: "STOP", actorId: "local", now: Date.now() }, dependencies));
+  const stopRoll = () => setRound((current) => (
+    current.phase === "SHAKING"
+      ? reduceRound(current, { type: "STOP", actorId: "local", now: Date.now() }, dependencies)
+      : current
+  ));
   const nextRound = () => setRound((current) => reduceRound(current, { type: "NEXT" }, dependencies));
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "Space" && !event.repeat) {
+        event.preventDefault();
+        startRoll();
+      }
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault();
+        stopRoll();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  });
 
   return (
     <main className="app-shell">
@@ -60,8 +88,23 @@ export function App() {
             <li key={direction}>{direction}: {DIE_FACE_SYMBOLS[index]}</li>
           ))}
         </ul>
-        {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Start Shake</button>}
+        {round.phase === "SELECTING" && <button type="button" onClick={startRoll}>Tap to Start</button>}
         {round.phase === "SHAKING" && <button type="button" onClick={stopRoll}>Stop Shake</button>}
+        {round.phase !== "RESULTS" && round.phase !== "MATCH_FINISHED" && (
+          <button
+            className="hold-control"
+            type="button"
+            disabled={round.phase !== "SELECTING" && round.phase !== "SHAKING"}
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+              startRoll();
+            }}
+            onPointerUp={stopRoll}
+            onPointerCancel={stopRoll}
+          >
+            Hold to Shake
+          </button>
+        )}
         {(round.phase === "SETTLING" || round.phase === "REVEALING") && <p className="phase-status">Settling… reveal is locked to the original outcome.</p>}
         {round.phase === "RESULTS" && (
           <>

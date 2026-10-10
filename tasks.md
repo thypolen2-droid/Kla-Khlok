@@ -4,7 +4,7 @@ This tracker turns [`KLA_KHLOK_GDD.md`](KLA_KHLOK_GDD.md) into an implementation
 
 **Statuses:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `DONE`
 
-**Current status:** `JOB-014 DONE` — authoritative roll lifecycle complete; next job is `JOB-015`.
+**Current status:** `JOB-015 DONE` — tap, pointer-hold, and keyboard controls complete; next job is `JOB-016`.
 
 ## One-job-at-a-time system
 
@@ -50,7 +50,7 @@ Run these jobs in order. Each row is one clean session and one rollback boundary
 | 12 | JOB-012 | Face orientation mapping | JOB-011 | DONE — one-to-one six-face mapping tests pass and the browser debug view displays all directions and IDs. |
 | 13 | JOB-013 | Visual physics containment | JOB-011 | DONE — Rapier scene loads and browser inspection shows all three settled dice inside the bowl bounds. |
 | 14 | JOB-014 | Authoritative roll lifecycle | JOB-006, JOB-012 | DONE — browser and fake-clock tests prove the shared lifecycle, fixed tail, retained outcome, and one result. |
-| 15 | JOB-015 | Button and pointer controls | JOB-014 | Browser test starts, holds, releases, and completes a roll using non-motion controls exactly once. |
+| 15 | JOB-015 | Button and pointer controls | JOB-014 | DONE — browser verifies tap, pointer press/release, and Space controls share one lifecycle. |
 | 16 | JOB-016 | DeviceMotion adapter | JOB-015 | Sensor fixture test maps quiet/gentle/fast samples to bounded intensity; unavailable permission uses the fallback control. |
 | 17 | JOB-017 | Audio and haptics lifecycle | JOB-014 | Browser test confirms mute stops sound, repeated rounds do not stack loops, and unsupported vibration does not fail the round. |
 | 18 | JOB-018 | Controlled reveal and 2D fallback | JOB-012, JOB-014 | Browser test confirms the revealed top faces match the retained outcome with WebGL enabled and disabled. |
@@ -232,6 +232,16 @@ At the end of each session, add or update one record using this format:
 - Evidence: Browser entered `SHAKING`, then `SETTLING` with the locked-outcome message, and reached `RESULTS` after the two-second tail with one result and score display; shared reducer tests continue to pass and the browser uses the injected cryptographic sampler plus reducer for the lifecycle.
 - Remaining limitation: The current demo has one preselected local seat and no hold/tap/keyboard adapters; those are added in JOB-015.
 - Rollback note: Revert this job's commit to remove browser lifecycle wiring and shake impulses while preserving the pure reducer and static physics scene.
+
+### JOB-015 — Button and pointer controls
+
+- Status: `DONE`
+- Commit: `PENDING`
+- Functional test: `npm run typecheck`; `npm run build --workspace @kla-khlok/web`; browser test tap Start, pointer press/release on Hold to Shake, and Space key press/release
+- Result: `PASS`
+- Evidence: Browser exposed `Tap to Start` and `Hold to Shake`; Space transitioned the round through `SHAKING` to `SETTLING`; pointer press/release also entered `SETTLING`; the existing Stop button remains available and all paths use the same reducer.
+- Remaining limitation: Motion sensor input is not connected yet; DeviceMotion filtering and capability fallback are JOB-016.
+- Rollback note: Revert this job's commit to remove the browser control adapters while preserving the authoritative reducer and scene.
 
 ## Delivery order
 
