@@ -195,6 +195,14 @@ export function App() {
           {isPlayRoute ? "One local demo seat is ready to test the authoritative roll lifecycle." : "The game foundation is ready for the shared rules and playable dice jobs."}
         </p>
         <p className="phase-status" aria-live="polite">Phase: {round.phase} · Round {round.roundNumber} · Motion {Math.round(motionIntensity * 100)}%</p>
+        <section className="score-panel" aria-labelledby="score-panel-title">
+          <div className="seat-panel-heading"><h2 id="score-panel-title">Scoreboard</h2><span>{round.history.length}/10 rounds</span></div>
+          <div className="score-list">
+            {round.players.map((player) => <span key={player.playerId}>{player.playerId}: <strong>{player.score}</strong></span>)}
+          </div>
+          {round.latestResult && <p className="storage-status">{round.latestResult.winnerIds.length > 0 ? `Round winners: ${round.latestResult.winnerIds.join(", ")}` : "No-match round — no player scored."}</p>}
+          {round.history.length > 0 && <ol className="history-list" aria-label="Round history">{round.history.slice().reverse().map((result) => <li key={result.roundId}>Round {result.roundNumber}: {result.outcome.join(" · ")} · {result.winnerIds.length ? result.winnerIds.join(", ") : "no match"}</li>)}</ol>}
+        </section>
         <DiceTableScene imageUrls={imageUrls} lidOpen={lidOpen} shaking={round.phase === "SHAKING"} revealOutcome={round.latestResult?.outcome ?? null} />
         <section className="seat-panel" aria-labelledby="seat-panel-title">
           <div className="seat-panel-heading">

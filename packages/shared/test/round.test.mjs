@@ -56,3 +56,31 @@ test("invalid roles and phases have no side effects", () => {
   );
   assert.throws(() => command(state, { type: "NEXT" }), RoundCommandError);
 });
+
+test("ten-round deterministic match retains history, ties, and no-match rounds", () => {
+  const outcomes = [
+    ["s1", "s1", "s4"], ["s2", "s3", "s5"], ["s0", "s0", "s2"], ["s4", "s4", "s4"], ["s1", "s2", "s3"],
+    ["s5", "s5", "s0"], ["s2", "s2", "s1"], ["s3", "s4", "s5"], ["s0", "s1", "s2"], ["s4", "s5", "s4"],
+  ];
+  let index = 0;
+  const deterministic = { sampleOutcome: () => outcomes[index++] };
+  let state = createInitialRoundState(["alice", "bob"], "alice");
+  state = reduceRound(state, { type: "START_MATCH" }, deterministic);
+  for (let round = 0; round < 10; round += 1) {
+    state = reduceRound(state, { type: "SET_SELECTION", playerId: "alice", selection: round % 2 ? "s2" : "s1" }, deterministic);
+    state = reduceRound(state, { type: "SET_SELECTION", playerId: "bob", selection: round % 2 ? "s2" : "s1" }, deterministic);
+    state = reduceRound(state, { type: "READY", playerId: "alice" }, deterministic);
+    state = reduceRound(state, { type: "READY", playerId: "bob" }, deterministic);
+    state = reduceRound(state, { type: "ARM", actorId: "alice" }, deterministic);
+    state = reduceRound(state, { type: "SHAKE_START", actorId: "alice" }, deterministic);
+    state = reduceRound(state, { type: "STOP", actorId: "alice", now: round * 10_000 }, deterministic);
+    state = reduceRound(state, { type: "TICK", now: round * 10_000 + SETTLE_DURATION_MS }, deterministic);
+    state = reduceRound(state, { type: "TICK", now: round * 10_000 + SETTLE_DURATION_MS + 1 }, deterministic);
+    assert.equal(state.history.length, round + 1);
+    if (round < 9) state = reduceRound(state, { type: "NEXT" }, deterministic);
+  }
+  assert.equal(state.phase, "RESULTS");
+  assert.equal(state.history.length, 10);
+  assert.equal(state.history[7].winnerIds.length, 0);
+  assert.deepEqual(state.history[0].winnerIds, ["alice", "bob"]);
+});
