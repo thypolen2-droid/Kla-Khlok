@@ -1,20 +1,15 @@
-export const GAME_NAME = "Kla Khlok" as const;
-export const GAME_VERSION = "0.1.0" as const;
-
-export const SYMBOL_IDS = ["s0", "s1", "s2", "s3", "s4", "s5"] as const;
+export { GAME_NAME, GAME_VERSION, ROUND_PHASES, SYMBOL_IDS } from "./constants.js";
+import { ROUND_PHASES, SYMBOL_IDS } from "./constants.js";
 export type SymbolId = (typeof SYMBOL_IDS)[number];
 
-export const ROUND_PHASES = [
-  "LOBBY",
-  "SELECTING",
-  "ARMED",
-  "SHAKING",
-  "SETTLING",
-  "REVEALING",
-  "RESULTS",
-  "MATCH_FINISHED",
-  "CLOSED",
-] as const;
 export type RoundPhase = (typeof ROUND_PHASES)[number];
 
 export type DiceOutcome = readonly [SymbolId, SymbolId, SymbolId];
+
+export {
+  DiceOutcomeSchema,
+  RoundPhaseSchema,
+  SymbolIdSchema,
+  SymbolPackManifestSchema,
+  SymbolSlotSchema,
+} from "./schemas.js";
